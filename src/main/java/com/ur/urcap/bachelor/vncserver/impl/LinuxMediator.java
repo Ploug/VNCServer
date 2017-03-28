@@ -29,7 +29,4 @@ public class LinuxMediator {
         } catch (Exception e) {
         }
     }
-     public static void changePassword(String s) {
-         
-     }
 }
