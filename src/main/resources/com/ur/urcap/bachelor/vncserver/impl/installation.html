@@ -8,21 +8,62 @@
 				width: 200px;
 				height: 28px;
 			}
+                        h1, h2, h3, h4{
+                        
+                        font-weight: normal;
+                        line-height: 1.1em;
+                        margin: 0 0 .5em 0;
+}
 			
 			div.spacer {
-				padding-top: 10px;
+				padding-top: 10px;     
 	 		}
+                        #info {
+				padding: 2px;
+                                display: inline;
+                                margin-left: 80%;
+                                width: inline;
+                                hight: inline;
+	 		}
+                        #buttons {
+				padding: 2px;
+                                display: inline;
+                                margin-right: 80%;
+                                margin-top: 5%;
+                                width:inline;
+                                hight:inline;
+	 		}
+                        #config{
+                            display: block;
+                        }
 		</style>
 	</head>
 	<body>
 		<h1>VNC Server</h1>
-		<div class="spacer">&nbsp;</div>
+                
+                <div id="info">
+                    <h2>Login information</h2>
+                    <form>
+               <p>IP address:</p>
+               <p>Password:</p> 
+               <p>Connected to:</p>
+                    </form>
+               </div>
+                
+		<div id="buttons" class="spacer">&nbsp;</div>
                 <form>
-                <p>Start and stop vnc server.</p>
+                <h2>Start and stop vnc server.</h2>
                     <input id="startserver" type="button"/>
                     <input id="stopserver" type="button"/>
                </form>
-               <h2>Login information</h2>
-               <p>IP address, username, password</p>
+                
+                <div id="config">
+                    <h2>Configuration</h2>
+                    <form>
+                <input id="changePassword" type="button"/>
+                <input id="connectConfig" type="button"/>
+                    </form>
+               </div>
+                
 	</body>
 </html>
