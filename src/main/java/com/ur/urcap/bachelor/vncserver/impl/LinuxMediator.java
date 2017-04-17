@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
  */
 public class LinuxMediator {
 
-    public static void doCommand(String s) {
+    public void doCommand(String s) {
         Process p;
         try {
             p = Runtime.getRuntime().exec(s);
