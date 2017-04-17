@@ -27,13 +27,12 @@
             }
             #changePass{
                 padding: 100px;
+                display: inline-block;
             }
 
             h1, h2, h3, h4{
 
                 font-weight: normal;
-                line-height: 1.1em;
-                margin: 0 0 .5em 0;
             }
             #info {
                 display: inline-block;
@@ -55,12 +54,14 @@
     <body>
         <h1>VNC Server</h1>
 
-        <div id="buttons" class="spacer">&nbsp;
+        <div id="buttons" class="spacer">&nbsp;  </div>
+        <form>
             <h2>Start and stop vnc server.</h2>
             <input id="startserver" type="button"/>
             <input id="stopserver" type="button"/>
-        </div>
-
+        </form>
+       
+        
         <div id="info">
             <h2>Login information</h2>
             <p>IP address:</p>
@@ -69,43 +70,27 @@
 
         </div>
 
-        <div id="config" class="configs">&nbsp;
+        <div id="config" class="configs">&nbsp;  </div>
+         <form>
             <h2>Configuration</h2>
             // This button is HTML based, to open up  the actual change password window
-            <button onclick="document.getElementById('changePass').style.display = 'block'" style="width:50%;">Change Password</button><br>
+            <input id="changepassword" type="button"/>
             <input id="shareConnection" type="button"/>
             <input id="SSH" type="button"/>
             <input id="port" type="button"/> 
+        </form>
 
-
-        </div>
-        
-        // The change password window
-        <div id="changePass" style="display:none;">
+       
+       
+        <div id="changePass" /> 
 
             <span onclick="document.getElementById('changePass').style.display = 'none'" class="close" title="Close Modal">&times;</span><br>
-
-            <label><b>Old password</b></label><br>
-            <input id="psw" type="password" placeholder="Enter old Password" name="psw" required><br>
-
-            <label><b>New password</b></label><br>
-            <input id="psw" type="password" placeholder="Enter new Password" name="psw" required><br>
-            
-            // The actual change password button
-            <input id="changePassword" type="button"/> 
-
-        </div>
-        // Get the change password window
-        <script type="text/javascript">
-            function toggle_visibility(id) {
-                var container = document.getElementById('changePass');
-
-                if (container.style.display == 'block')
-                    container.style.display = 'none';
-                else
-                    container.style.display = 'block';
-            }
-        </script>
+        // The change password window
+            <form>
+                <label>Old password</label><br>
+            </form>
+        
+      
 
     </body>
 </html>

@@ -14,8 +14,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     private static final String START_KEY = "startserver";
     private static final String STOP_KEY = "stopserver";
     private static final String CHANGE_PASSWORD = "changepassword";
-    private static final String SHARECONNECTION = "connectconfigs";
+    private static final String SHARECONNECTION = "shareConnection";
     private static final String PORT = "port";
+    private static final String SSH = "SSH";
     private static final String DEFAULT_VALUE = "VNC Server foo";
 
     private DataModel model;
@@ -28,6 +29,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
     @Input(id = START_KEY)
     private InputButton startButton;
+    
+    @Input(id = SSH)
+    private InputButton sshButton;
     
     @Input(id = STOP_KEY)
     private InputButton stopButton;
@@ -65,6 +69,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         stopButton.setText("Stop");
         changePassword.setText("Change Password");
         shareConnection.setText("Share connection");
+        sshButton.setText("SSH");
         port.setText("Choose port");
     }
 
@@ -77,7 +82,14 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Override
     public void generateScript(ScriptWriter writer)
     {
-       
+     writer.appendRaw("function toggle_visibility(id) {\n" +
+"                var container = document.getElementById('changePass');\n" +
+"\n" +
+"                if (container.style.display == 'block')\n" +
+"                    container.style.display = 'none';\n" +
+"                else\n" +
+"                    container.style.display = 'block';\n" +
+"            }");
     }
 
    
