@@ -13,6 +13,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
     private static final String START_KEY = "startserver";
     private static final String STOP_KEY = "stopserver";
+    private static final String CHANGE_PASSWORD = "changepassword";
+    private static final String SHARECONNECTION = "connectconfigs";
+    private static final String PORT = "port";
     private static final String DEFAULT_VALUE = "VNC Server foo";
 
     private DataModel model;
@@ -28,6 +31,15 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     
     @Input(id = STOP_KEY)
     private InputButton stopButton;
+    
+    @Input(id = CHANGE_PASSWORD)
+    private InputButton changePassword;
+    
+    @Input(id = SHARECONNECTION)
+    private InputButton shareConnection;
+    
+    @Input(id = PORT)
+    private InputButton port;
 
     @Input(id = START_KEY)
     public void onStartClick(InputEvent event)
@@ -51,6 +63,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         startButton.setText("Start");
         stopButton.setText("Stop");
+        changePassword.setText("Change Password");
+        shareConnection.setText("Share connection");
+        port.setText("Choose port");
     }
 
     @Override

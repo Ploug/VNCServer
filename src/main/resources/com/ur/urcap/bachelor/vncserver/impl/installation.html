@@ -1,69 +1,111 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>VNC server configuration</title>
-		<style>
-			label, input {
-				display: inline-block;
-				width: 200px;
-				height: 28px;
-			}
-                        h1, h2, h3, h4{
-                        
-                        font-weight: normal;
-                        line-height: 1.1em;
-                        margin: 0 0 .5em 0;
-}
-			
-			div.spacer {
-				padding-top: 10px;     
-	 		}
-                        #info {
-				padding: 2px;
-                                display: inline;
-                                margin-left: 80%;
-                                width: inline;
-                                hight: inline;
-	 		}
-                        #buttons {
-				padding: 2px;
-                                display: inline;
-                                margin-right: 80%;
-                                margin-top: 5%;
-                                width:inline;
-                                hight:inline;
-	 		}
-                        #config{
-                            display: block;
-                        }
-		</style>
-	</head>
-	<body>
-		<h1>VNC Server</h1>
-                
-                <div id="info">
-                    <h2>Login information</h2>
-                    <form>
-               <p>IP address:</p>
-               <p>Password:</p> 
-               <p>Connected to:</p>
-                    </form>
-               </div>
-                
-		<div id="buttons" class="spacer">&nbsp;</div>
-                <form>
-                <h2>Start and stop vnc server.</h2>
-                    <input id="startserver" type="button"/>
-                    <input id="stopserver" type="button"/>
-               </form>
-                
-                <div id="config">
-                    <h2>Configuration</h2>
-                    <form>
-                <input id="changePassword" type="button"/>
-                <input id="connectConfig" type="button"/>
-                    </form>
-               </div>
-                
-	</body>
+    <head>
+        <title>VNC server configuration</title>
+        <style>
+
+            input{
+                width: 50%;
+                display: inline;
+            }
+            #startserver{
+                width: 200px;;
+                display: inline-block;
+            }
+
+            #stopserver{
+                width: 200px;;
+                display: inline-block;
+            }
+            #psw{
+                width: 200px;;
+                display: inline-block;
+            }
+            #changePassword{
+                width: 100px;;
+                display: inline-block;
+            }
+            #changePass{
+                padding: 100px;
+            }
+
+            h1, h2, h3, h4{
+
+                font-weight: normal;
+                line-height: 1.1em;
+                margin: 0 0 .5em 0;
+            }
+            #info {
+                display: inline-block;
+                width: 400px;
+            }
+            #buttons {
+                display: inline-block;
+                width: 800px;
+            }
+            #config{
+                display: block;
+                padding-top: 100px;
+            }
+
+
+
+        </style>
+    </head>
+    <body>
+        <h1>VNC Server</h1>
+
+        <div id="buttons" class="spacer">&nbsp;
+            <h2>Start and stop vnc server.</h2>
+            <input id="startserver" type="button"/>
+            <input id="stopserver" type="button"/>
+        </div>
+
+        <div id="info">
+            <h2>Login information</h2>
+            <p>IP address:</p>
+            <p>Password:</p>   
+            <p>Connected to:</p>
+
+        </div>
+
+        <div id="config" class="configs">&nbsp;
+            <h2>Configuration</h2>
+            // This button is HTML based, to open up  the actual change password window
+            <button onclick="document.getElementById('changePass').style.display = 'block'" style="width:50%;">Change Password</button><br>
+            <input id="shareConnection" type="button"/>
+            <input id="SSH" type="button"/>
+            <input id="port" type="button"/> 
+
+
+        </div>
+        
+        // The change password window
+        <div id="changePass" style="display:none;">
+
+            <span onclick="document.getElementById('changePass').style.display = 'none'" class="close" title="Close Modal">&times;</span><br>
+
+            <label><b>Old password</b></label><br>
+            <input id="psw" type="password" placeholder="Enter old Password" name="psw" required><br>
+
+            <label><b>New password</b></label><br>
+            <input id="psw" type="password" placeholder="Enter new Password" name="psw" required><br>
+            
+            // The actual change password button
+            <input id="changePassword" type="button"/> 
+
+        </div>
+        // Get the change password window
+        <script type="text/javascript">
+            function toggle_visibility(id) {
+                var container = document.getElementById('changePass');
+
+                if (container.style.display == 'block')
+                    container.style.display = 'none';
+                else
+                    container.style.display = 'block';
+            }
+        </script>
+
+    </body>
 </html>
