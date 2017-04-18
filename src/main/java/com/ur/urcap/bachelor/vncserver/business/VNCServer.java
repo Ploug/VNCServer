@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public class VNCServer {
     
     private LinuxMediator linMed;
+    public static final String DEFAULT_PASSWORD = "urvnc4321"; // Should force users to change password..
     public VNCServer()
     {
         linMed = new LinuxMediator();
@@ -24,16 +25,24 @@ public class VNCServer {
         {
             //Create default VNC server
             linMed.installVNC();
+            linMed.setVNCPassword(DEFAULT_PASSWORD);
         }
         catch (UnsuccessfulCommandException ex)
         {
-            // Tell user the server could not be created
+            System.out.println("Something went wrong in setup.");
         }
     }
     
     public void start()
     {
-        linMed.doCommand("");
+        try
+        {
+            linMed.startVNC(false, 5900, false, true);
+        }
+        catch (UnsuccessfulCommandException ex)
+        {
+            System.out.println("Something went wrong in starting");
+        }
     }
     
     public void stop()

@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +20,13 @@ import java.util.logging.Logger;
  */
 public class LinuxMediator
 {
+    
+    public LinuxMediator()
+    {
+        
+    }
     private String ls = System.getProperty("line.separator");
+    private String fs = System.getProperty("file.separator");
     public void installVNC() throws UnsuccessfulCommandException
     {
         ShellCommandResponse response = doCommand("sudo dpkg -s x11vnc");
@@ -40,6 +47,65 @@ public class LinuxMediator
             throw new UnsuccessfulCommandException("x11vnc was not installed for unknown reasons");
         }
 
+    }
+   public void setVNCPassword(String password) throws UnsuccessfulCommandException
+   {
+       System.out.println(doCommand("x11vnc --storepasswd").getOutput());
+       System.out.println(doCommand(password).getOutput());
+       System.out.println(doCommand(password).getOutput());
+       ShellCommandResponse response = doCommand("y");
+       
+       if(!response.getOutput().contains("Password written to: "+fs+"home"+fs+"vncserver/passwd"))
+       {
+           throw new UnsuccessfulCommandException("Password was not saved properly");
+       }
+       
+   }
+    
+    public void startVNC(boolean shared,  int port, boolean ssh, boolean log) throws UnsuccessfulCommandException
+    {
+        /*
+         -forever: keeps server running after you log out
+         - nodpms: prevents power management saving and keeps display alive
+         - noxdamage: prevents framebuffer issues and lets x11vnc run with screen tearing issues.
+         - rfbport: 5900 is the default port for vnc
+         - display:0 chooses which display to show. 
+         - bg : runs process in background
+         - o: location to log the shit.
+         - rfbauth: location password is stored. 
+        
+        */
+        String command = "x11vnc -forever -nodpms -noxdamage -bg";
+        command += shared?" -shared":"";
+        command += " -rfbport "+port;
+        if(log)
+        {
+            File f;
+            int i = 0;
+            do
+            {
+               f = new File(fs+"var"+fs+"log"+fs+"x11vnc_"+i+".log");
+               i++;
+            }
+            while(f.exists());
+            try
+            {
+                f.createNewFile();
+            }
+            catch (IOException ex)
+            {
+                Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            String logPath = f.getAbsolutePath();
+            command += " -o "+logPath;
+        }
+        
+        doCommand(command);
+    }
+    public void stopVNC() throws UnsuccessfulCommandException
+    {
+        
     }
 
     public ShellCommandResponse doCommand(String s)
