@@ -5,28 +5,21 @@
         <style>
 
             input{
-                width: 50%;
-                display: inline;
+                width: 500px;
+                height: 40px;
+                display: block;
+            }
+            label{
+                width: 500px;
+                display: block;
             }
             #startserver{
-                width: 200px;;
+                width: 30%;;
                 display: inline-block;
             }
 
             #stopserver{
-                width: 200px;;
-                display: inline-block;
-            }
-            #psw{
-                width: 200px;;
-                display: inline-block;
-            }
-            #changePassword{
-                width: 100px;;
-                display: inline-block;
-            }
-            #changePass{
-                padding: 100px;
+                width: 30%;;
                 display: inline-block;
             }
 
@@ -43,7 +36,7 @@
                 width: 800px;
             }
             #config{
-                display: block;
+                display: inline;
                 padding-top: 100px;
             }
 
@@ -54,14 +47,14 @@
     <body>
         <h1>VNC Server</h1>
 
-        <div id="buttons" class="spacer">&nbsp;  </div>
-        <form>
+        <div class="spacer">&nbsp;  </div>
+        <form id="buttons">
             <h2>Start and stop vnc server.</h2>
             <input id="startserver" type="button"/>
             <input id="stopserver" type="button"/>
         </form>
-       
-        
+
+
         <div id="info">
             <h2>Login information</h2>
             <p>IP address:</p>
@@ -70,27 +63,15 @@
 
         </div>
 
-        <div id="config" class="configs">&nbsp;  </div>
-         <form>
+        <div class="configs">&nbsp;  </div>
+        <form id="config">
             <h2>Configuration</h2>
-            // This button is HTML based, to open up  the actual change password window
             <input id="changepassword" type="button"/>
             <input id="shareConnection" type="button"/>
             <input id="SSH" type="button"/>
             <input id="port" type="button"/> 
+            <label for="IPTabels" id="ip">hej</label>
         </form>
-
-       
-       
-        <div id="changePass" /> 
-
-            <span onclick="document.getElementById('changePass').style.display = 'none'" class="close" title="Close Modal">&times;</span><br>
-        // The change password window
-            <form>
-                <label>Old password</label><br>
-            </form>
-        
-      
 
     </body>
 </html>
