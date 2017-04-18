@@ -7,6 +7,8 @@ import com.ur.urcap.api.ui.annotation.Input;
 import com.ur.urcap.api.ui.component.InputButton;
 import com.ur.urcap.api.ui.component.InputEvent;
 import com.ur.urcap.api.ui.component.InputTextField;
+import com.ur. urcap . api .ui. annotation . Label ;
+import com.ur.urcap.api.ui.component.LabelComponent;
 
 public class VNCServerInstallationNodeContribution implements InstallationNodeContribution
 {
@@ -47,6 +49,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     
     @Input(id = PORT)
     private InputButton port;
+    
+    @Label (id = "ip")
+    private LabelComponent IPt ;
 
     @Input(id = START_KEY)
     public void onStartClick(InputEvent event)
@@ -64,6 +69,42 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
             System.out.println("Hello stop:)");
         }
     }
+    
+    @Input(id = SSH)
+    public void onSSHClick(InputEvent event)
+    {
+        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+        {
+            System.out.println("Hello SSH:)");
+        }
+    }
+    
+    @Input(id = CHANGE_PASSWORD)
+    public void onChangePasswordClick(InputEvent event)
+    {
+        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+        {
+            System.out.println("Hello Change Password:)");
+        }
+    }
+    
+    @Input(id = SHARECONNECTION)
+    public void onShareConnectionClick(InputEvent event)
+    {
+        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+        {
+            System.out.println("Hello Share Connection:)");
+        }
+    }
+    
+    @Input(id = PORT)
+    public void onPortClick(InputEvent event)
+    {
+        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+        {
+            System.out.println("Hello Port:)");
+        }
+    }
 
     @Override
     public void openView()
@@ -74,6 +115,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         shareConnection.setText("Share connection");
         sshButton.setText("SSH");
         port.setText("Choose port");
+        IPt.setText ( "IP label" );
     }
 
     @Override
