@@ -20,9 +20,12 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     private static final String DEFAULT_VALUE = "VNC Server foo";
 
     private DataModel model;
+    
+    private VNCServer server;
 
     public VNCServerInstallationNodeContribution(DataModel model)
     {
+        server = new VNCServer();
         this.model = model;
     }
    

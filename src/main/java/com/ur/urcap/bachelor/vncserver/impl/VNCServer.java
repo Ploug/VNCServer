@@ -16,7 +16,7 @@ public class VNCServer {
     {
         linMed = new LinuxMediator();
         //Create default VNC server
-         linMed.doCommand("s");
+        linMed.test();
     }
     
     public void start()
