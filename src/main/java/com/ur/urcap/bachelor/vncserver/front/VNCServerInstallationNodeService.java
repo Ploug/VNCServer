@@ -1,4 +1,4 @@
-package com.ur.urcap.bachelor.vncserver.impl;
+package com.ur.urcap.bachelor.vncserver.front;
 
 import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.InstallationNodeService;
