@@ -28,7 +28,6 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
     public VNCServerInstallationNodeContribution(DataModel model)
     {
-        server = new VNCServer();
         this.model = model;
     }
    
@@ -59,7 +58,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-            System.out.println("Hello start :)");
+            server.start();
         }
     }
      @Input(id = STOP_KEY)
@@ -67,7 +66,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-            System.out.println("Hello stop:)");
+            server.stop();
         }
     }
     
@@ -110,6 +109,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Override
     public void openView()
     {
+        server = new VNCServer();
         startButton.setText("Start");
         stopButton.setText("Stop");
         changePassword.setText("Change Password");

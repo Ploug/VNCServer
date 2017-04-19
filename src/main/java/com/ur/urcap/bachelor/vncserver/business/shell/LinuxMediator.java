@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -20,13 +22,17 @@ import java.util.logging.Logger;
  */
 public class LinuxMediator
 {
-    
-    public LinuxMediator()
-    {
-        
-    }
+
     private String ls = System.getProperty("line.separator");
     private String fs = System.getProperty("file.separator");
+    private String passwdPath = fs + "var" + fs + "x11vnc" + fs + "passwd";
+    private boolean active;
+
+    public LinuxMediator()
+    {
+        active = false;
+    }
+
     public void installVNC() throws UnsuccessfulCommandException
     {
         ShellCommandResponse response = doCommand("sudo dpkg -s x11vnc");
@@ -48,21 +54,22 @@ public class LinuxMediator
         }
 
     }
-   public void setVNCPassword(String password) throws UnsuccessfulCommandException
-   {
-       System.out.println(doCommand("x11vnc --storepasswd").getOutput());
-       System.out.println(doCommand(password).getOutput());
-       System.out.println(doCommand(password).getOutput());
-       ShellCommandResponse response = doCommand("y");
-       
-       if(!response.getOutput().contains("Password written to: "+fs+"home"+fs+"vncserver/passwd"))
-       {
-           throw new UnsuccessfulCommandException("Password was not saved properly");
-       }
-       
-   }
-    
-    public void startVNC(boolean shared,  int port, boolean ssh, boolean log) throws UnsuccessfulCommandException
+
+    public void setVNCPassword(String password) throws UnsuccessfulCommandException
+    {
+        
+        File f = new File(passwdPath);
+        ShellCommandResponse response = doCommand("sudo mkdir -p " + passwdPath.replace(fs + "passwd", ""));
+        doCommand("sudo touch " + passwdPath);
+        response = doCommand("sudo x11vnc --storepasswd " + password + " " + passwdPath);
+
+        if (!response.getOutput().contains("stored passwd in file"))
+        {
+            throw new UnsuccessfulCommandException("Password was not saved properly");
+        } 
+    }
+
+    public void startVNC(boolean shared, int port, boolean ssh, boolean log) throws UnsuccessfulCommandException
     {
         /*
          -forever: keeps server running after you log out
@@ -74,40 +81,85 @@ public class LinuxMediator
          - o: location to log the shit.
          - rfbauth: location password is stored. 
         
-        */
-        String command = "x11vnc -forever -nodpms -noxdamage -bg";
-        command += shared?" -shared":"";
-        command += " -rfbport "+port;
-        if(log)
+         */
+
+        if (active)
+        {
+            throw new UnsuccessfulCommandException("Server already actve");
+        }
+        doCommand("x11vnc -R stop");
+        String command = "sudo "+fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg";
+        command += shared ? " -shared" : "";
+        command += " -rfbport " + port;
+        if (log)
         {
             File f;
             int i = 0;
             do
             {
-               f = new File(fs+"var"+fs+"log"+fs+"x11vnc_"+i+".log");
-               i++;
+                f = new File(fs + "var" + fs + "x11vnc" + fs + "logFile_" + i + ".log");
+                i++;
             }
-            while(f.exists());
-            try
-            {
-                f.createNewFile();
-            }
-            catch (IOException ex)
-            {
-                Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            while (f.exists());
             
+            doCommand("sudo touch"+f.getAbsolutePath());
+
             String logPath = f.getAbsolutePath();
-            command += " -o "+logPath;
+            command += " -o " + logPath;
         }
-        
+
         doCommand(command);
-    }
-    public void stopVNC() throws UnsuccessfulCommandException
-    {
-        
+        active = true;
     }
 
+    public void stopVNC() throws UnsuccessfulCommandException
+    {
+        ShellCommandResponse response = doCommand("x11vnc -R stop");
+        System.out.println("output: "+response.getOutput());
+        System.out.println("exit value: "+response.getExitValue());
+        if(response.getExitValue() != 0)
+        {
+            throw new UnsuccessfulCommandException("Something went wrong when stoppping the server");
+        }
+        active = false;
+    }
+ /*
+    public ShellCommandResponse doCommands(String[] s)
+    {
+        String output = "";
+        int exitValue = -1;
+        Process p;
+        try
+        {
+            p = Runtime.getRuntime().exec(s[0]);
+            OutputStream opst = p.getOutputStream();
+            PrintWriter pw = new PrintWriter(opst);
+            for (int i = 1; i < s.length; i++)
+            {
+                pw.write(s[i] + "\n");
+                System.out.println(s[i] + "\n");
+            }
+            System.out.println("Hello :)");
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(p.getInputStream()));
+            System.out.println("Helldso :)" + p.getInputStream().available());
+            String line = "";
+            while ((line = br.readLine()) != null)
+            {
+                output += line + "\n";
+            }
+
+            p.waitFor();
+            exitValue = p.exitValue();
+            p.destroy();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return new ShellCommandResponse(output, exitValue);
+    }
+ */
     public ShellCommandResponse doCommand(String s)
     {
         String output = "";
@@ -115,20 +167,28 @@ public class LinuxMediator
         Process p;
         try
         {
+            System.out.println("\ncommand:"+s+"\n");
             p = Runtime.getRuntime().exec(s);
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(p.getInputStream()));
-
+            BufferedReader ir = new BufferedReader(
+                    new InputStreamReader(p.getErrorStream()));
+            while ((s = ir.readLine()) != null)
+            {
+                output += s + "\n";
+            }
             while ((s = br.readLine()) != null)
             {
                 output += s + "\n";
             }
+
             p.waitFor();
             exitValue = p.exitValue();
             p.destroy();
         }
         catch (Exception e)
         {
+            e.printStackTrace();
         }
         return new ShellCommandResponse(output, exitValue);
     }

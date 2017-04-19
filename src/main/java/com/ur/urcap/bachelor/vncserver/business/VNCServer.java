@@ -14,17 +14,21 @@ import java.util.logging.Logger;
  *
  * @author frede
  */
-public class VNCServer {
-    
+public class VNCServer
+{
+
     private LinuxMediator linMed;
     public static final String DEFAULT_PASSWORD = "urvnc4321"; // Should force users to change password..
+
     public VNCServer()
     {
         linMed = new LinuxMediator();
         try
         {
             //Create default VNC server
+
             linMed.installVNC();
+
             linMed.setVNCPassword(DEFAULT_PASSWORD);
         }
         catch (UnsuccessfulCommandException ex)
@@ -32,7 +36,7 @@ public class VNCServer {
             System.out.println("Something went wrong in setup.");
         }
     }
-    
+
     public void start()
     {
         try
@@ -44,9 +48,16 @@ public class VNCServer {
             System.out.println("Something went wrong in starting");
         }
     }
-    
+
     public void stop()
     {
-         linMed.doCommand("");
+        try
+        {
+            linMed.stopVNC();
+        }
+        catch (UnsuccessfulCommandException ex)
+        {
+            Logger.getLogger(VNCServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
