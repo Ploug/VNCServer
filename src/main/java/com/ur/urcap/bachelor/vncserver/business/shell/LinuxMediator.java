@@ -57,7 +57,7 @@ public class LinuxMediator
 
     public void setVNCPassword(String password) throws UnsuccessfulCommandException
     {
-        
+
         File f = new File(passwdPath);
         ShellCommandResponse response = doCommand("sudo mkdir -p " + passwdPath.replace(fs + "passwd", ""));
         doCommand("sudo touch " + passwdPath);
@@ -66,7 +66,7 @@ public class LinuxMediator
         if (!response.getOutput().contains("stored passwd in file"))
         {
             throw new UnsuccessfulCommandException("Password was not saved properly");
-        } 
+        }
     }
 
     public void startVNC(boolean shared, int port, boolean ssh, boolean log) throws UnsuccessfulCommandException
@@ -88,7 +88,7 @@ public class LinuxMediator
             throw new UnsuccessfulCommandException("Server already actve");
         }
         doCommand("x11vnc -R stop");
-        String command = "sudo "+fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg";
+        String command = "sudo " + fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg -rfbauth " + passwdPath;
         command += shared ? " -shared" : "";
         command += " -rfbport " + port;
         if (log)
@@ -101,8 +101,8 @@ public class LinuxMediator
                 i++;
             }
             while (f.exists());
-            
-            doCommand("sudo touch"+f.getAbsolutePath());
+
+            doCommand("sudo touch" + f.getAbsolutePath());
 
             String logPath = f.getAbsolutePath();
             command += " -o " + logPath;
@@ -115,15 +115,16 @@ public class LinuxMediator
     public void stopVNC() throws UnsuccessfulCommandException
     {
         ShellCommandResponse response = doCommand("x11vnc -R stop");
-        System.out.println("output: "+response.getOutput());
-        System.out.println("exit value: "+response.getExitValue());
-        if(response.getExitValue() != 0)
+        System.out.println("output: " + response.getOutput());
+        System.out.println("exit value: " + response.getExitValue());
+        if (response.getExitValue() != 0)
         {
             throw new UnsuccessfulCommandException("Something went wrong when stoppping the server");
         }
         active = false;
     }
- /*
+
+    /*
     public ShellCommandResponse doCommands(String[] s)
     {
         String output = "";
@@ -159,7 +160,7 @@ public class LinuxMediator
         }
         return new ShellCommandResponse(output, exitValue);
     }
- */
+     */
     public ShellCommandResponse doCommand(String s)
     {
         String output = "";
@@ -167,7 +168,7 @@ public class LinuxMediator
         Process p;
         try
         {
-            System.out.println("\ncommand:"+s+"\n");
+            System.out.println("\ncommand:" + s + "\n");
             p = Runtime.getRuntime().exec(s);
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(p.getInputStream()));
@@ -219,6 +220,14 @@ public class LinuxMediator
         {
             ex.printStackTrace();
         }
+    }
+
+    public String getIP()
+    {
+        ShellCommandResponse response = doCommand("ip addr show eth0");
+        String s = response.getOutput();
+        int startIndex = s.indexOf("inet");
+        return response.getOutput().substring(s.indexOf("inet")+5, s.indexOf("/",startIndex));
     }
 
 }

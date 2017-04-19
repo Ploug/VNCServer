@@ -19,9 +19,17 @@ public class VNCServer
 
     private LinuxMediator linMed;
     public static final String DEFAULT_PASSWORD = "urvnc4321"; // Should force users to change password..
+    private String password; 
+    private boolean shared;
+    private boolean SSH;
+
+   
+    private int port;
 
     public VNCServer()
     {
+        shared = false;
+        SSH = false;
         linMed = new LinuxMediator();
         try
         {
@@ -36,12 +44,47 @@ public class VNCServer
             System.out.println("Something went wrong in setup.");
         }
     }
+    
+    public boolean isShared()
+    {
+        return shared;
+    }
+
+    public void setShared(boolean shared)
+    {
+        this.shared = shared;
+    }
+    public String getPassword()
+    {
+        if(password == null)
+        {
+            return DEFAULT_PASSWORD;
+        }
+        return password;
+    }
+    
+    public String getIP()
+    {
+        return linMed.getIP();
+    }
+    public void setPassword(String inputPassword)
+    {
+        try
+        {
+            linMed.setVNCPassword(inputPassword);
+        }
+        catch (UnsuccessfulCommandException ex)
+        {
+            Logger.getLogger(VNCServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.password = inputPassword;
+    }
 
     public void start()
     {
         try
         {
-            linMed.startVNC(false, 5900, false, true);
+            linMed.startVNC(shared, port, false, true);
         }
         catch (UnsuccessfulCommandException ex)
         {
@@ -59,5 +102,24 @@ public class VNCServer
         {
             Logger.getLogger(VNCServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void setPort(int inPort)
+    {
+        port = inPort; 
+    }
+    
+    public int getPort()
+    {
+        return port;
+    }
+
+    public void setSSH(boolean value)
+    {
+        SSH = value;
+    }
+    public boolean isSSH()
+    {
+       return SSH;
     }
 }

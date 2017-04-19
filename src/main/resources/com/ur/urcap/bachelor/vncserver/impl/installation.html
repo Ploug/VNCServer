@@ -29,7 +29,7 @@
             }
             #info {
                 display: inline-block;
-                width: 400px;
+                width: 300px;
             }
             #buttons {
                 display: inline-block;
@@ -54,23 +54,24 @@
             <input id="stopserver" type="button"/>
         </form>
 
-
-        <div id="info">
+        <form id="info">
             <h2>Login information</h2>
-            <p>IP address:</p>
-            <p>Password:</p>   
-            <p>Connected to:</p>
+            <b>IP address:</b> <label id="ip">Temporary</label>
+            <b>Password:</b>  <label  id="passwordLabel">Temporary</label>  
+            <b>Connection:</b>  <label id="Online">Temporary</label>
+            <b>Shared:</b>  <label id="Shared">Temporary</label>
+            <b>SSH:</b>  <label id="SSHLabel">Temporary</label>
+            <b>Port:</b>  <label id="portLabel">Temporary</label>
 
-        </div>
+        </form>
 
         <div class="configs">&nbsp;  </div>
         <form id="config">
             <h2>Configuration</h2>
-            <input id="changepassword" type="button"/>
+            <b>Set Password</b><input id="passwordField" type="text"/>
             <input id="shareConnection" type="button"/>
             <input id="SSH" type="button"/>
-            <input id="port" type="button"/> 
-            <label for="IPTabels" id="ip">hej</label>
+            <b> Set port</b><input id="portText" type="text"/>
         </form>
 
     </body>
