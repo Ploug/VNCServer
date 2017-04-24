@@ -3,7 +3,6 @@
     <head>
         <title>VNC server configuration</title>
         <style>
-
             input{
                 width: 500px;
                 height: 40px;
@@ -14,12 +13,12 @@
                 display: block;
             }
             #startserver{
-                width: 30%;;
+                width: 15%;;
                 display: inline-block;
             }
 
             #stopserver{
-                width: 30%;;
+                width: 15%;;
                 display: inline-block;
             }
 
@@ -29,50 +28,49 @@
             }
             #info {
                 display: inline-block;
-                width: 300px;
+                width: 400px;
             }
             #buttons {
                 display: inline-block;
-                width: 800px;
+                width: 350px;
             }
             #config{
                 display: inline;
                 padding-top: 100px;
             }
 
-
-
         </style>
+
     </head>
     <body>
-        <h1>VNC Server</h1>
+            <h1>VNC Server</h1>
 
-        <div class="spacer">&nbsp;  </div>
-        <form id="buttons">
-            <h2>Start and stop vnc server.</h2>
-            <input id="startserver" type="button"/>
-            <input id="stopserver" type="button"/>
-        </form>
+            <div class="spacer">&nbsp;  </div>
+            <form id="buttons">
+                <h2>Start and stop vnc server.</h2>
+                <input id="startserver" type="button"/>
+                <input id="stopserver" type="button"/>
+            </form>
 
-        <form id="info">
-            <h2>Login information</h2>
-            <b>IP address:</b> <label id="ip">Temporary</label>
-            <b>Password:</b>  <label  id="passwordLabel">Temporary</label>  
-            <b>Connection:</b>  <label id="Online">Temporary</label>
-            <b>Shared:</b>  <label id="Shared">Temporary</label>
-            <b>SSH:</b>  <label id="SSHLabel">Temporary</label>
-            <b>Port:</b>  <label id="portLabel">Temporary</label>
+            <form id="info">
+                <h2>Login information</h2>
+                <b>IP address:</b> <label id="ip">Temporary</label>
+                <b>Password:</b>  <label  id="passwordLabel">Temporary</label>  
+                <b>Connection:</b>  <label id="Online">Temporary</label>
+                <b>Shared:</b>  <label id="Shared">Temporary</label>
+                <b>SSH:</b>  <label id="SSHLabel">Temporary</label>
+                <b>Port:</b>  <label id="portLabel">Temporary</label>
+            </form>
 
-        </form>
-
-        <div class="configs">&nbsp;  </div>
-        <form id="config">
-            <h2>Configuration</h2>
-            <b>Set Password</b><input id="passwordField" type="text"/>
-            <input id="shareConnection" type="button"/>
-            <input id="SSH" type="button"/>
-            <b> Set port</b><input id="portText" type="text"/>
-        </form>
-
+            <div class="configs">&nbsp;  </div>
+            <form id="config">
+                <h2>Configuration</h2>
+                <b>Set Password</b><input id="passwordField" type="text"/>
+                <input id="shareConnection" type="button"/>
+                <input id="SSH" type="button"/>
+                <b> Set port</b><input id="portText" type="text"/>
+            </form>
     </body>
+
+
 </html>
