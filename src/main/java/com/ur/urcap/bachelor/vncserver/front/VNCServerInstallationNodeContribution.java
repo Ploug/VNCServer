@@ -1,6 +1,5 @@
 package com.ur.urcap.bachelor.vncserver.front;
 
-import com.ur.urcap.bachelor.vncserver.business.VNCServer;
 import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
@@ -10,6 +9,10 @@ import com.ur.urcap.api.ui.component.InputEvent;
 import com.ur.urcap.api.ui.component.InputTextField;
 import com.ur.urcap.api.ui.annotation.Label;
 import com.ur.urcap.api.ui.component.LabelComponent;
+import com.ur.urcap.bachelor.vncserver.business.VNCServer.Configuration;
+import com.ur.urcap.bachelor.vncserver.business.VNCServer.VNCServer;
+import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediatorImpl;
+import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
 
 public class VNCServerInstallationNodeContribution implements InstallationNodeContribution
 {
@@ -21,13 +24,15 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     private static final String DEFAULT_VALUE = "VNC Server foo";
     private static final String PASSWORD_FIELD = "passwordField";
     private static final String PORT_FIELD = "portText";
-    
+
     private static final String SSH_LABEL = "SSHLabel";
     private static final String PASSWORRD_LABEL = "passwordLabel";
 
+    private Configuration configuration;
     private DataModel model;
 
     private VNCServer server;
+    private LinuxMediator linMed;
 
     public VNCServerInstallationNodeContribution(DataModel model)
     {
@@ -43,7 +48,6 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Input(id = STOP_KEY)
     private InputButton stopButton;
 
-
     @Input(id = SHARECONNECTION)
     private InputButton shareConnection;
 
@@ -55,19 +59,19 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
     @Label(id = "Online")
     private LabelComponent onlineLabel;
-    
+
     @Label(id = "SSHLabel")
     private LabelComponent SSHLabel;
-    
+
     @Label(id = "portLabel")
     private LabelComponent portLabel;
-    
+
     @Label(id = "Shared")
     private LabelComponent sharedLabel;
 
     @Input(id = PASSWORD_FIELD)
     private InputTextField passwordField;
-    
+
     @Input(id = PORT_FIELD)
     private InputTextField portField;
 
@@ -78,10 +82,12 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         {
             server.start();
             IPAddress.getText();
-            IPAddress.setText(server.getIP());
+            IPAddress.setText(linMed.getIP());
             onlineLabel.setText("ONLINE");
-            passwordLabel.setText(server.getPassword());
-            portLabel.setText(server.getPort()+"");
+            passwordLabel.setText(server.getConfig().getPassword());
+            portLabel.setText(server.getConfig().getPort() + "");
+            SSHLabel.setText(server.getConfig().isSSH() + "");
+            sharedLabel.setText(server.getConfig().isShared() + "");
         }
     }
 
@@ -100,21 +106,17 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-            server.setSSH(!server.isSSH());
-            SSHLabel.setText(server.isSSH()+"");
-            
+            configuration.setSSH(!configuration.isSSH());
+
         }
     }
-
-   
-
 
     @Input(id = PASSWORD_FIELD)
     public void onPasswordFieldEnter(InputEvent event)
     {
         if (event.getEventType() == InputEvent.EventType.ON_CHANGE)
         {
-            server.setPassword(passwordField.getText());
+            configuration.setPassword(passwordField.getText());
         }
     }
 
@@ -125,7 +127,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         {
             try
             {
-                server.setPort(Integer.parseInt(portField.getText()));
+                configuration.setPort(Integer.parseInt(portField.getText()));
 
             }
 
@@ -142,8 +144,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-           server.setShared(!server.isShared());
-           sharedLabel.setText(server.isShared()+"");
+            configuration.setShared(!configuration.isShared());
         }
     }
 
@@ -152,20 +153,21 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
 
         server = new VNCServer();
-
+        linMed = new LinuxMediatorImpl();
+        configuration = new Configuration();
         startButton.setText("Start");
         stopButton.setText("Stop");
         shareConnection.setText("Share connection");
         sshButton.setText("SSH");
-        passwordLabel.setText(server.getPassword());
+        passwordLabel.setText(configuration.getPassword());
         IPAddress.getText();
-        IPAddress.setText(server.getIP());
+        IPAddress.setText(linMed.getIP());
         onlineLabel.setText("OFFLINE");
         portField.setText("5900");
-        server.setPort(5900);
-        passwordField.setText(VNCServer.DEFAULT_PASSWORD);
-        sharedLabel.setText(server.isShared()+"");
-        SSHLabel.setText(server.isSSH()+"");
+        configuration.setPort(5900);
+        passwordField.setText(Configuration.DEFAULT_PASSWORD);
+        sharedLabel.setText(configuration.isShared() + "");
+        SSHLabel.setText(configuration.isSSH() + "");
     }
 
     @Override

@@ -40,16 +40,12 @@
 		<!--********************** END OF URCAP META DATA **********************-->
 		<!--********************************************************************-->
 
-		<!--Host and standard user/password for UR Sim running in a VM-->
-                <ursimvm.install.host></ursimvm.install.host>
-                <ursimvm.install.username>ur</ursimvm.install.username>
-                <ursimvm.install.password>easybot</ursimvm.install.password>
 
 		<!--Install path for the UR Sim-->
-		<ursim.home></ursim.home>
+		<ursim.home>/home</ursim.home>
 
 		<!--Host and standard user/password for UR Sim running in a VM-->
-		<ursimvm.install.host></ursimvm.install.host>
+		<ursimvm.install.host>192.168.248.130</ursimvm.install.host>
 		<ursimvm.install.username>ur</ursimvm.install.username>
 		<ursimvm.install.password>easybot</ursimvm.install.password>
 
@@ -112,9 +108,9 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>cp</executable>
-							<commandlineArgs>target/${project.build.finalName}.jar target/${project.build.finalName}.urcap</commandlineArgs>
-							<workingDirectory>.</workingDirectory>
+							<executable>copy</executable>
+							<commandlineArgs>${project.build.finalName}.jar ${project.build.finalName}_cap.urcap</commandlineArgs>
+							<workingDirectory>./target</workingDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -183,8 +179,8 @@
 									<goal>exec</goal>
 								</goals>
 								<configuration>
-									<executable>sshpass</executable>
-									<commandlineArgs>-p ${urcap.install.password} scp -o StrictHostKeyChecking=no target/${project.build.finalName}.jar ${urcap.install.username}@${urcap.install.host}:/root/.urcaps/${urcap.symbolicname}.jar</commandlineArgs>
+									<executable>pscp</executable>
+									<commandlineArgs>-pw ${ursimvm.install.password} target/${project.build.finalName}_cap.urcap ${ursimvm.install.username}@${ursimvm.install.host}:/home/ur/ursim-current/.urcaps/${urcap.symbolicname}.jar</commandlineArgs>
 									<workingDirectory>.</workingDirectory>
 								</configuration>
 							</execution>
@@ -195,8 +191,8 @@
 									<goal>exec</goal>
 								</goals>
 								<configuration>
-									<executable>sshpass</executable>
-									<commandlineArgs>-p ${urcap.install.password} ssh ${urcap.install.username}@${urcap.install.host} pkill java</commandlineArgs>
+									<executable>plink</executable>
+									<commandlineArgs>-ssh ${ursimvm.install.username}@${ursimvm.install.host} -pw ${ursimvm.install.password} pkill java</commandlineArgs>
 									<workingDirectory>.</workingDirectory>
 								</configuration>
 							</execution>
@@ -221,7 +217,7 @@
 									<goal>exec</goal>
 								</goals>
 								<configuration>
-									<executable>cp</executable>
+									<executable>copy</executable>
 									<commandlineArgs>target/${project.build.finalName}.jar ${user.home}/.urcaps/${urcap.symbolicname}.jar</commandlineArgs>
 									<workingDirectory>.</workingDirectory>
 								</configuration>
@@ -247,7 +243,7 @@
 									<goal>exec</goal>
 								</goals>
 								<configuration>
-									<executable>cp</executable>
+									<executable>copy</executable>
 									<commandlineArgs>target/${project.build.finalName}.jar ${ursim.home}/.urcaps/${urcap.symbolicname}.jar</commandlineArgs>
 									<workingDirectory>.</workingDirectory>
 								</configuration>

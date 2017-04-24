@@ -5,6 +5,7 @@
  */
 package com.ur.urcap.bachelor.vncserver.business.shell;
 
+import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
  *
  * @author frede
  */
-public class LinuxMediator
+public class LinuxMediatorImpl implements LinuxMediator
 {
 
     private String ls = System.getProperty("line.separator");
@@ -28,7 +29,7 @@ public class LinuxMediator
     private String passwdPath = fs + "var" + fs + "x11vnc" + fs + "passwd";
     private boolean active;
 
-    public LinuxMediator()
+    public LinuxMediatorImpl()
     {
         active = false;
     }
