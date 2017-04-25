@@ -5,9 +5,9 @@
  */
 package com.ur.urcap.bachelor.vncserver.business.VNCServer;
 
-import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
 import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediatorImpl;
 import com.ur.urcap.bachelor.vncserver.business.shell.UnsuccessfulCommandException;
+import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +20,7 @@ public class VNCServer
 
     private LinuxMediator linMed;
     private Configuration configuration;
+    private boolean active = false;
 
     public VNCServer()
     {
@@ -38,6 +39,11 @@ public class VNCServer
         {
             System.out.println("Something went wrong in setup.");
         }
+    }
+
+    public boolean isActive()
+    {
+        return active;
     }
 
     public VNCServer(Configuration configuration)
@@ -63,6 +69,7 @@ public class VNCServer
         try
         {
             linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isSSH(), configuration.isLogging());
+            active = true;
         }
         catch (UnsuccessfulCommandException ex)
         {
@@ -75,12 +82,14 @@ public class VNCServer
         try
         {
             linMed.stopVNC();
+            active = false;
         }
         catch (UnsuccessfulCommandException ex)
         {
             Logger.getLogger(VNCServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public void setConfig(Configuration configuration)
     {
         this.configuration = configuration;

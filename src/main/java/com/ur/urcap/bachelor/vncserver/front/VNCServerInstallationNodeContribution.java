@@ -4,10 +4,10 @@ import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
 import com.ur.urcap.api.ui.annotation.Input;
+import com.ur.urcap.api.ui.annotation.Label;
 import com.ur.urcap.api.ui.component.InputButton;
 import com.ur.urcap.api.ui.component.InputEvent;
 import com.ur.urcap.api.ui.component.InputTextField;
-import com.ur.urcap.api.ui.annotation.Label;
 import com.ur.urcap.api.ui.component.LabelComponent;
 import com.ur.urcap.bachelor.vncserver.business.VNCServer.Configuration;
 import com.ur.urcap.bachelor.vncserver.business.VNCServer.VNCServer;
@@ -78,6 +78,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Input(id = START_KEY)
     public void onStartClick(InputEvent event)
     {
+
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
             server.start();
@@ -88,6 +89,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
             portLabel.setText(server.getConfig().getPort() + "");
             SSHLabel.setText(server.getConfig().isSSH() + "");
             sharedLabel.setText(server.getConfig().isShared() + "");
+            configuration.persist(model);
         }
     }
 
@@ -154,11 +156,16 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
         server = new VNCServer();
         linMed = new LinuxMediatorImpl();
-        configuration = new Configuration();
+
+        configuration = Configuration.createConfiguration(model);
+
         startButton.setText("Start");
         stopButton.setText("Stop");
-        shareConnection.setText("Share connection");
-        sshButton.setText("SSH");
+        shareConnection.setVisible(false);
+        sshButton.setVisible(false);
+        portLabel.setVisible(false);
+        sharedLabel.setVisible(false);
+        SSHLabel.setVisible(false);
         passwordLabel.setText(configuration.getPassword());
         IPAddress.getText();
         IPAddress.setText(linMed.getIP());
@@ -166,8 +173,6 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         portField.setText("5900");
         configuration.setPort(5900);
         passwordField.setText(Configuration.DEFAULT_PASSWORD);
-        sharedLabel.setText(configuration.isShared() + "");
-        SSHLabel.setText(configuration.isSSH() + "");
     }
 
     @Override
