@@ -92,7 +92,7 @@ public class LinuxMediatorImpl implements LinuxMediator
             String logPath = f.getAbsolutePath();
             command += " -o " + logPath;
         }
-
+        System.out.println("COMMAND: " + command);
         doCommand(command);
     }
 
@@ -179,10 +179,8 @@ public class LinuxMediatorImpl implements LinuxMediator
 
     public void runScript(String script) //TODO: make it possible to run .sh scripts. Currently trouble with handling proper file pathing in linux.
     {
-        System.out.println("test 3");
         try
         {
-            System.out.println("test 4");
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec(script);
             proc.waitFor();
@@ -193,7 +191,6 @@ public class LinuxMediatorImpl implements LinuxMediator
             {
                 output.append(line + "\n");
             }
-            System.out.println("### " + output);
         }
         catch (IOException ex)
         {

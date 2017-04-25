@@ -66,6 +66,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Label(id = "portLabel")
     private LabelComponent portLabel;
 
+    @Label(id = "logLabel")
+    private LabelComponent logLabel;
+
     @Label(id = "Shared")
     private LabelComponent sharedLabel;
 
@@ -89,8 +92,16 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
                 onlineLabel.setText("ONLINE");
                 passwordLabel.setText(server.getConfig().getPassword());
                 portLabel.setText(server.getConfig().getPort() + "");
-                SSHLabel.setText(server.getConfig().isSSH() + "");
+                if (configuration.isSSH())
+                {
+                    SSHLabel.setText("SSH");
+                }
+                else
+                {
+                    SSHLabel.setText("Telnet");
+                }
                 sharedLabel.setText(server.getConfig().isShared() + "");
+                logLabel.setText(server.getConfig().isLogging() + "");
                 startStopButton.setText("Stop");
             }
             else
@@ -102,6 +113,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
                 portLabel.setText("");
                 SSHLabel.setText("");
                 sharedLabel.setText("");
+                logLabel.setText("");
                 startStopButton.setText("Start");
             }
             configuration.persist(model);
@@ -113,7 +125,8 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-
+            configuration.setLogging(!configuration.isLogging());
+            logVNCActivityButton.setText("Log VNC Activity:" + configuration.isLogging());
         }
     }
 
@@ -123,6 +136,14 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
             configuration.setSSH(!configuration.isSSH());
+            if (configuration.isSSH())
+            {
+                sshButton.setText("SSH");
+            }
+            else
+            {
+                sshButton.setText("Telnet");
+            }
 
         }
     }
@@ -161,6 +182,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
             configuration.setShared(!configuration.isShared());
+            shareConnectionButton.setText("Shared: " + configuration.isShared());
         }
     }
 
@@ -184,6 +206,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         onlineLabel.setText("OFFLINE");
         portField.setText("5900");
         configuration.setPort(5900);
+        server.setConfig(configuration);
         passwordField.setText(server.getConfig().getPassword());
         passwordLabel.setText(server.getConfig().getPassword());
 
@@ -195,6 +218,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Override
     public void closeView()
     {
+        server.stop();
     }
 
     @Override
