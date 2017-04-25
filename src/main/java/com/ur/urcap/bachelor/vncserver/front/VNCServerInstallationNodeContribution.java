@@ -17,14 +17,14 @@ import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
 public class VNCServerInstallationNodeContribution implements InstallationNodeContribution
 {
 
-    private static final String START_KEY = "startserver";
-    private static final String STOP_KEY = "stopserver";
+    private static final String STARTSTOP_KEY = "startStopServer";
     private static final String SHARECONNECTION = "shareConnection";
     private static final String SSH = "SSH";
     private static final String DEFAULT_VALUE = "VNC Server foo";
     private static final String PASSWORD_FIELD = "passwordField";
     private static final String PORT_FIELD = "portText";
-
+    private static final String LOGVNCACTIVITY = "logVNCActivity";
+    
     private static final String SSH_LABEL = "SSHLabel";
     private static final String PASSWORRD_LABEL = "passwordLabel";
 
@@ -38,15 +38,15 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         this.model = model;
     }
+    
+    @Input(id = LOGVNCACTIVITY)
+    private InputButton logVNCActivityButton;
 
-    @Input(id = START_KEY)
-    private InputButton startButton;
+    @Input(id = STARTSTOP_KEY)
+    private InputButton startStopButton;
 
     @Input(id = SSH)
     private InputButton sshButton;
-
-    @Input(id = STOP_KEY)
-    private InputButton stopButton;
 
     @Input(id = SHARECONNECTION)
     private InputButton shareConnection;
@@ -75,8 +75,8 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Input(id = PORT_FIELD)
     private InputTextField portField;
 
-    @Input(id = START_KEY)
-    public void onStartClick(InputEvent event)
+    @Input(id = STARTSTOP_KEY)
+    public void onStartStopClick(InputEvent event)
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
@@ -90,16 +90,25 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
             sharedLabel.setText(server.getConfig().isShared() + "");
         }
     }
-
-    @Input(id = STOP_KEY)
-    public void onStopClick(InputEvent event)
+    
+    @Input(id = LOGVNCACTIVITY)
+    public void onLogVNCActivityClick(InputEvent event)
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-            server.stop();
-            onlineLabel.setText("OFFLINE");
+            
         }
     }
+
+//    @Input(id = STOP_KEY)
+//    public void onStopClick(InputEvent event)
+//    {
+//        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+//        {
+//            server.stop();
+//            onlineLabel.setText("OFFLINE");
+//        }
+//    }
 
     @Input(id = SSH)
     public void onSSHClick(InputEvent event)
@@ -155,8 +164,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         server = new VNCServer();
         linMed = new LinuxMediatorImpl();
         configuration = new Configuration();
-        startButton.setText("Start");
-        stopButton.setText("Stop");
+        startStopButton.setText("Start");
         shareConnection.setText("Share connection");
         sshButton.setText("SSH");
         passwordLabel.setText(configuration.getPassword());
@@ -168,6 +176,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         passwordField.setText(Configuration.DEFAULT_PASSWORD);
         sharedLabel.setText(configuration.isShared() + "");
         SSHLabel.setText(configuration.isSSH() + "");
+        logVNCActivityButton.setText("Log VNC Activity");
     }
 
     @Override
@@ -179,26 +188,6 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     public void generateScript(ScriptWriter writer)
     {
 
-    }
-
-    public String stopserver()
-    {
-        return model.get(START_KEY, DEFAULT_VALUE);
-    }
-
-    private void stopserver(String message)
-    {
-        model.set(START_KEY, message);
-    }
-
-    public String startserver()
-    {
-        return model.get(START_KEY, DEFAULT_VALUE);
-    }
-
-    private void startserver(String message)
-    {
-        model.set(START_KEY, message);
     }
 
 }

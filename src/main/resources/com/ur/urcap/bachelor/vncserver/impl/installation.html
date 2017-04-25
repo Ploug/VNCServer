@@ -3,73 +3,85 @@
     <head>
         <title>VNC server configuration</title>
         <style>
+            
+            
+
             input{
-                width: 500px;
-                height: 40px;
-                display: block;
+                width: 30%;
+                height: 30px;
+                display: inline;
             }
             label{
-                width: 500px;
-                display: block;
+                width: 100%;
+                display: inline;
             }
-            #startserver{
-                width: 15%;;
+            #passwordField{
+                width: 30%;
+                height: 25px;
                 display: inline-block;
             }
-
-            #stopserver{
-                width: 15%;;
+            #portText{
+                width: 30%;
+                height: 25px;
                 display: inline-block;
+            }
+            #startStopServer{
+                width: 30%;
+                height: 30px;
+                display: inline-block;
+                padding: 0;
             }
 
             h1, h2, h3, h4{
-
-                font-weight: normal;
+                font-style: normal;
+                padding: 0;
             }
             #info {
                 display: inline-block;
-                width: 400px;
+                width: 200px;
+
             }
             #buttons {
                 display: inline-block;
                 width: 350px;
             }
             #config{
-                display: inline;
-                padding-top: 100px;
+                display: block;
+                width: 600px;
             }
 
         </style>
 
     </head>
     <body>
-            <h1>VNC Server</h1>
-
             <div class="spacer">&nbsp;  </div>
+            
             <form id="buttons">
-                <h2>Start and stop vnc server.</h2>
-                <input id="startserver" type="button"/>
-                <input id="stopserver" type="button"/>
+                <h2>VNC Server <br><br><br></h2>
+                <h3>Start and stop vnc server.</h3>
+                <input id="startStopServer" type="button"/>
+
             </form>
 
             <form id="info">
-                <h2>Login information</h2>
-                <b>IP address:</b> <label id="ip">Temporary</label>
-                <b>Password:</b>  <label  id="passwordLabel">Temporary</label>  
-                <b>Connection:</b>  <label id="Online">Temporary</label>
-                <b>Shared:</b>  <label id="Shared">Temporary</label>
-                <b>SSH:</b>  <label id="SSHLabel">Temporary</label>
+                <h3>Server information</h3>
+                <b>IP address:</b> <label id="ip">Temporary</label><br>
+                <b>Password:</b>  <label  id="passwordLabel">Temporary</label><br>  
+                <b>Connection:</b>  <label id="Online">Temporary</label><br>
+                <b>Shared:</b>  <label id="Shared">Temporary</label><br>
+                <b>SSH:</b>  <label id="SSHLabel">Temporary</label><br>
                 <b>Port:</b>  <label id="portLabel">Temporary</label>
             </form>
 
-            <div class="configs">&nbsp;  </div>
             <form id="config">
-                <h2>Configuration</h2>
-                <b>Set Password</b><input id="passwordField" type="text"/>
-                <input id="shareConnection" type="button"/>
+                <h3>Configuration</h3>
+                <b>Set Password: </b> <br><input id="passwordField" type="text"/><br>
+                <b>Set Port:     </b><br>       <input id="portText" type="text"/><br>
+                <input id="shareConnection" type="button"/><br>
+                <input id="logVNCActivity" type="button"/><br>
                 <input id="SSH" type="button"/>
-                <b> Set port</b><input id="portText" type="text"/>
             </form>
+
     </body>
 
 
