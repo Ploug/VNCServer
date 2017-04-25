@@ -24,7 +24,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     private static final String PASSWORD_FIELD = "passwordField";
     private static final String PORT_FIELD = "portText";
     private static final String LOGVNCACTIVITY = "logVNCActivity";
-    
+
     private static final String SSH_LABEL = "SSHLabel";
     private static final String PASSWORRD_LABEL = "passwordLabel";
 
@@ -38,7 +38,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         this.model = model;
     }
-    
+
     @Input(id = LOGVNCACTIVITY)
     private InputButton logVNCActivityButton;
 
@@ -49,7 +49,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     private InputButton sshButton;
 
     @Input(id = SHARECONNECTION)
-    private InputButton shareConnection;
+    private InputButton shareConnectionButton;
 
     @Label(id = "ip")
     private LabelComponent IPAddress;
@@ -81,36 +81,41 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-            server.start();
-            IPAddress.getText();
-            IPAddress.setText(linMed.getIP());
-            onlineLabel.setText("ONLINE");
-            passwordLabel.setText(server.getConfig().getPassword());
-            portLabel.setText(server.getConfig().getPort() + "");
-            SSHLabel.setText(server.getConfig().isSSH() + "");
-            sharedLabel.setText(server.getConfig().isShared() + "");
+            if (!server.isActive())
+            {
+                server.start();
+                IPAddress.getText();
+                IPAddress.setText(linMed.getIP());
+                onlineLabel.setText("ONLINE");
+                passwordLabel.setText(server.getConfig().getPassword());
+                portLabel.setText(server.getConfig().getPort() + "");
+                SSHLabel.setText(server.getConfig().isSSH() + "");
+                sharedLabel.setText(server.getConfig().isShared() + "");
+                startStopButton.setText("Stop");
+            }
+            else
+            {
+                server.stop();
+                IPAddress.setText("");
+                onlineLabel.setText("OFFLINE");
+                passwordLabel.setText("");
+                portLabel.setText("");
+                SSHLabel.setText("");
+                sharedLabel.setText("");
+                startStopButton.setText("Start");
+            }
             configuration.persist(model);
         }
     }
-    
+
     @Input(id = LOGVNCACTIVITY)
     public void onLogVNCActivityClick(InputEvent event)
     {
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
-            
+
         }
     }
-
-//    @Input(id = STOP_KEY)
-//    public void onStopClick(InputEvent event)
-//    {
-//        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
-//        {
-//            server.stop();
-//            onlineLabel.setText("OFFLINE");
-//        }
-//    }
 
     @Input(id = SSH)
     public void onSSHClick(InputEvent event)
@@ -165,36 +170,26 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
         server = new VNCServer();
         linMed = new LinuxMediatorImpl();
-<<<<<<< HEAD
-        configuration = new Configuration();
         startStopButton.setText("Start");
-        shareConnection.setText("Share connection");
+        shareConnectionButton.setText("Share connection");
         sshButton.setText("SSH");
-=======
 
         configuration = Configuration.createConfiguration(model);
 
-        startButton.setText("Start");
-        stopButton.setText("Stop");
-        shareConnection.setVisible(false);
-        sshButton.setVisible(false);
-        portLabel.setVisible(false);
-        sharedLabel.setVisible(false);
-        SSHLabel.setVisible(false);
->>>>>>> 7acc95f7e7597ed348e09e93fae0b5ff4c0ca171
-        passwordLabel.setText(configuration.getPassword());
+        portLabel.setText("");
+        sharedLabel.setText("");
+        SSHLabel.setText("");
         IPAddress.getText();
         IPAddress.setText(linMed.getIP());
         onlineLabel.setText("OFFLINE");
         portField.setText("5900");
         configuration.setPort(5900);
-        passwordField.setText(Configuration.DEFAULT_PASSWORD);
-<<<<<<< HEAD
-        sharedLabel.setText(configuration.isShared() + "");
-        SSHLabel.setText(configuration.isSSH() + "");
+        passwordField.setText(server.getConfig().getPassword());
+        passwordLabel.setText(server.getConfig().getPassword());
+
+        sharedLabel.setText("");
+        SSHLabel.setText("");
         logVNCActivityButton.setText("Log VNC Activity");
-=======
->>>>>>> 7acc95f7e7597ed348e09e93fae0b5ff4c0ca171
     }
 
     @Override
