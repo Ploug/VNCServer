@@ -10,12 +10,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -27,12 +21,6 @@ public class LinuxMediatorImpl implements LinuxMediator
     private String ls = System.getProperty("line.separator");
     private String fs = System.getProperty("file.separator");
     private String passwdPath = fs + "var" + fs + "x11vnc" + fs + "passwd";
-    private boolean active;
-
-    public LinuxMediatorImpl()
-    {
-        active = false;
-    }
 
     public void installVNC() throws UnsuccessfulCommandException
     {
@@ -77,17 +65,13 @@ public class LinuxMediatorImpl implements LinuxMediator
          - nodpms: prevents power management saving and keeps display alive
          - noxdamage: prevents framebuffer issues and lets x11vnc run with screen tearing issues.
          - rfbport: 5900 is the default port for vnc
-         - display:0 chooses which display to show. 
+         - display:0 chooses which display to show.
          - bg : runs process in background
          - o: location to log the shit.
-         - rfbauth: location password is stored. 
-        
+         - rfbauth: location password is stored.
+
          */
 
-        if (active)
-        {
-            throw new UnsuccessfulCommandException("Server already actve");
-        }
         doCommand("x11vnc -R stop");
         String command = "sudo " + fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg -rfbauth " + passwdPath;
         command += shared ? " -shared" : "";
@@ -110,7 +94,6 @@ public class LinuxMediatorImpl implements LinuxMediator
         }
 
         doCommand(command);
-        active = true;
     }
 
     public void stopVNC() throws UnsuccessfulCommandException
@@ -122,7 +105,6 @@ public class LinuxMediatorImpl implements LinuxMediator
         {
             throw new UnsuccessfulCommandException("Something went wrong when stoppping the server");
         }
-        active = false;
     }
 
     /*
@@ -228,7 +210,7 @@ public class LinuxMediatorImpl implements LinuxMediator
         ShellCommandResponse response = doCommand("ip addr show eth0");
         String s = response.getOutput();
         int startIndex = s.indexOf("inet");
-        return response.getOutput().substring(s.indexOf("inet")+5, s.indexOf("/",startIndex));
+        return response.getOutput().substring(s.indexOf("inet") + 5, s.indexOf("/", startIndex));
     }
 
 }
