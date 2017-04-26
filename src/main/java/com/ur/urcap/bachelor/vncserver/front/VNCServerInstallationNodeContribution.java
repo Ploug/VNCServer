@@ -72,6 +72,12 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Label(id = "portLabel")
     private LabelComponent portLabel;
 
+    @Label(id = "errorText")
+    private LabelComponent errorLabel;
+
+    @Label(id = "passwordInfo")
+    private LabelComponent passwordInfoLabel;
+
     @Label(id = "logLabel")
     private LabelComponent logLabel;
 
@@ -90,26 +96,34 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
 
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED && !installVNCButton.isVisible())
         {
-            if (!server.isActive())
+            try
             {
-                server.start();
-                IPAddress.setText(linMed.getIP());
-                onlineLabel.setText("ONLINE");
-                passwordLabel.setText(server.getConfig().getPassword());
-                portLabel.setText(server.getConfig().getPort() + "");
-                sharedLabel.setText(server.getConfig().isShared() + "");
-                logLabel.setText(server.getConfig().isLogging() + "");
-                startStopButton.setText("Stop");
+                if (!server.isActive())
+                {
+
+                    server.start();
+                    onlineLabel.setText("ONLINE");
+                    passwordLabel.setText(server.getConfig().getPassword());
+                    portLabel.setText(server.getConfig().getPort() + "");
+                    sharedLabel.setText(server.getConfig().isShared() + "");
+                    logLabel.setText(server.getConfig().isLogging() + "");
+                    startStopButton.setText("Stop");
+                }
+                else
+                {
+                    server.stop();
+                    onlineLabel.setText("OFFLINE");
+                    passwordLabel.setText("");
+                    portLabel.setText("");
+                    sharedLabel.setText("");
+                    logLabel.setText("");
+                    startStopButton.setText("Start");
+                }
+                errorLabel.setText("");
             }
-            else
+            catch (UnsuccessfulCommandException ex)
             {
-                server.stop();
-                onlineLabel.setText("OFFLINE");
-                passwordLabel.setText("");
-                portLabel.setText("");
-                sharedLabel.setText("");
-                logLabel.setText("");
-                startStopButton.setText("Start");
+                errorLabel.setText(ex.getMessage());
             }
         }
     }
@@ -130,7 +144,24 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
         if (event.getEventType() == InputEvent.EventType.ON_CHANGE)
         {
-            configuration.setPassword(passwordField.getText());
+            String suggestedPassword = passwordField.getText();
+            if (suggestedPassword.length() > 0 && suggestedPassword.length() < 50)
+            {
+                configuration.setPassword(suggestedPassword);
+                if (configuration.getPassword().equals(Configuration.DEFAULT_PASSWORD))
+                {
+                    passwordInfoLabel.setText("WARNING: You are using the default password");
+                }
+                else
+                {
+                    passwordInfoLabel.setText("");
+                }
+            }
+            else
+            {
+                passwordField.setText(configuration.getPassword());
+
+            }
             configuration.persist(model);
         }
     }
@@ -213,13 +244,13 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         }
         startStopButton.setText("Start");
         shareConnectionButton.setText("Share connection");
-
+        errorLabel.setText("");
         configuration = server.getConfig();
 
         logPath.setText("Logs saved at: " + server.getDataPath());
-        if(server.isActive())
+        IPAddress.setText(linMed.getIP());
+        if (server.isActive())
         {
-            IPAddress.setText(linMed.getIP());
             onlineLabel.setText("ONLINE");
             passwordLabel.setText(server.getConfig().getPassword());
             portLabel.setText(server.getConfig().getPort() + "");
@@ -235,6 +266,15 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
             sharedLabel.setText("");
             logLabel.setText("");
             startStopButton.setText("Start");
+        }
+
+        if (configuration.getPassword().equals(Configuration.DEFAULT_PASSWORD))
+        {
+            passwordInfoLabel.setText("WARNING: You are using the default password");
+        }
+        else
+        {
+            passwordInfoLabel.setText("");
         }
 
         server.setConfig(configuration);

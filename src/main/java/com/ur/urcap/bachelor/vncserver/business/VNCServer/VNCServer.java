@@ -39,42 +39,33 @@ public class VNCServer
     public static VNCServer createServer(DataModel model)
     {
         VNCServer server = new VNCServer(Configuration.createConfiguration(model));
-        if(model.isSet("activeServer"))
+        if (model.isSet("activeServer"))
         {
             server.active = model.get("activeServer", false);
         }
         return server;
     }
+
     public void persist(DataModel model)
     {
         model.set("activeServer", active);
         configuration.persist(model);
     }
-    public void start()
+
+    public void start() throws UnsuccessfulCommandException
     {
-        try
-        {
-            linMed.setVNCPassword(configuration.getPassword());
-            linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isLogging(), dataPath);
-            active = true;
-        }
-        catch (UnsuccessfulCommandException ex)
-        {
-            System.out.println("Something went wrong in starting");
-        }
+        linMed.setVNCPassword(configuration.getPassword());
+        linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isLogging(), dataPath);
+        active = true;
+
     }
 
-    public void stop()
+    public void stop() throws UnsuccessfulCommandException
     {
-        try
-        {
-            linMed.stopVNC();
-            active = false;
-        }
-        catch (UnsuccessfulCommandException ex)
-        {
-            Logger.getLogger(VNCServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+        linMed.stopVNC();
+        active = false;
+
     }
 
     public void setConfig(Configuration configuration)

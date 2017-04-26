@@ -9,12 +9,15 @@ import com.ur.urcap.api.ui.component.LabelComponent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -67,7 +70,7 @@ public class LinuxMediator
             File f1 = new File(path);
             FileReader fr = new FileReader(f1);
             BufferedReader br = new BufferedReader(fr);
-            String line = "";
+            String line;
             List<String> lines = new ArrayList<String>();
             while ((line = br.readLine()) != null)
             {
@@ -86,9 +89,13 @@ public class LinuxMediator
             out.flush();
             out.close();
         }
-        catch (Exception ex)
+        catch (FileNotFoundException ex)
         {
-            ex.printStackTrace();
+            Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

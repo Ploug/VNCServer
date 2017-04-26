@@ -3,8 +3,8 @@
     <head>
         <title>VNC server configuration</title>
         <style>
-            
-            
+
+
 
             input{
                 width: 30%;
@@ -38,13 +38,13 @@
             }
             #info {
                 display: inline-block;
-                width: 200px;
+                width: 300px;
 
             }
             #buttons {
                 display: inline-block;
-                width: 350px;
-                
+                width: 300px;
+
             }
             #config{
                 display: block;
@@ -59,39 +59,43 @@
 
     </head>
     <body>
-            
-            <form id="buttons">
-                <h2>VNC Server</h2>
-                <h3>&nbsp; </h3>
-                <h3>Start and stop vnc server.</h3>
-                <input id="startStopServer" type="button"/>
-                <h3> &nbsp;</h3>
 
-            </form>
-            <form id="info">
-                <h3>Server information</h3>
-                <b>IP address:</b> <label id="ip">Temporary</label><br>
-                <b>Password:</b>  <label  id="passwordLabel">Temporary</label><br>  
-                <b>Connection:</b>  <label id="Online">Temporary</label><br>
-                <b>Shared:</b>  <label id="Shared">Temporary</label><br>
-                <b>Port:</b>  <label id="portLabel">Temporary</label><br>
-                <b>Logging:</b>  <label id="logLabel">Temporary</label>
-            </form>
+        <form id="buttons">
+            <h2>VNC Server</h2>
+            <h3>&nbsp; </h3>
+            <h3>Start and stop vnc server.</h3>
+            <input id="startStopServer" type="button"/>
+            <h3> &nbsp;</h3>
 
-            <form id="config">
-                <h3>Configuration</h3>
-                <b>Set Password: </b> <br><input id="passwordField" type="text"/><br>
-                <b>Set Port:     </b><br>       <input id="portText" type="text"/><br>
-                <input id="shareConnection" type="button"/><br>
-                <input id="logVNCActivity" type="button"/>
-                <label style="font-weight: bold;" id="logPath">Temporary</label>
-                <h3> &nbsp;</h3>
-                <h3> &nbsp;</h3>
-            </form>
-            <form id="installVNC">
-                 <input id="installVNC" type="button"/>
-                 <label style="font-weight: bold;" id="installVNCText">Temporary</label>
-            </form>
+        </form>
+        <form id="info">
+            <h3>Server information</h3>
+            <b>IP address:</b> <label id="ip">Temporary</label><br>
+            <b>Password:</b>  <label  id="passwordLabel">Temporary</label><br>  
+            <b>Connection:</b>  <label id="Online">Temporary</label><br>
+            <b>Shared:</b>  <label id="Shared">Temporary</label><br>
+            <b>Port:</b>  <label id="portLabel">Temporary</label><br>
+            <b>Logging:</b>  <label id="logLabel">Temporary</label>
+        </form>
+
+        <form id="config">
+            <h3>Configuration</h3>
+            <b>Set Password: </b> <br><input id="passwordField" type="text"/>
+            <label style="font-weight: bold;" id="passwordInfo">Temporary</label><br>
+            <b>Set Port:     </b><br>       <input id="portText" type="text"/><br>
+            <input id="shareConnection" type="button"/><br>
+            <input id="logVNCActivity" type="button"/>
+            <label style="font-weight: bold;" id="logPath">Temporary</label>
+            <h3> &nbsp;</h3>
+            <h3> &nbsp;</h3>
+        </form>
+        <form>
+            <label style="font-weight: bold;" id="errorText">Temporary</label>
+        </form>
+        <form id="installVNC">
+            <input id="installVNC" type="button"/>
+            <label style="font-weight: bold;" id="installVNCText">Temporary</label>
+        </form>
 
     </body>
 

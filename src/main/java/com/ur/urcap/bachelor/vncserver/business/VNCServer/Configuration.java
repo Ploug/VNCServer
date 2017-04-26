@@ -101,7 +101,11 @@ public class Configuration
 
     public void setPassword(String inputPassword)
     {
-        this.password = inputPassword;
+        if(inputPassword.length()>0)
+        {
+            this.password = inputPassword;
+        }
+        
     }
 
     public void setLogging(boolean value)
