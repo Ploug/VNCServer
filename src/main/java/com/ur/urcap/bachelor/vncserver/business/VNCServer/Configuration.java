@@ -17,34 +17,20 @@ public class Configuration
     public static final String DEFAULT_PASSWORD = "urvnc4321"; // Should force users to change password..
 
     private String password;
-    private boolean SSH;
     private boolean shared;
     private int port;
     private boolean logging;
 
-    public int getPort()
-    {
-        return port;
-    }
-
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
+   
 
     public Configuration()
     {
         password = DEFAULT_PASSWORD;
+        port = 5900;
         shared = false;
-        SSH = false;
+        logging = false;
     }
 
-    public Configuration(String inputPassword)
-    {
-        password = inputPassword;
-        shared = false;
-        SSH = false;
-    }
 
     public static Configuration createConfiguration(DataModel model)
     {
@@ -57,11 +43,18 @@ public class Configuration
                 return new Configuration();
             }
 
-            retval.setSSH(persisConfig[0].equals("true"));
-            retval.setShared(persisConfig[1].equals("true"));
-            retval.setLogging(persisConfig[2].equals("true"));
-            retval.setPassword(persisConfig[3]);
-            retval.setPort(Integer.parseInt(persisConfig[4]));
+            retval.setShared(persisConfig[0].equals("true"));
+            retval.setLogging(persisConfig[1].equals("true"));
+            retval.setPassword(persisConfig[2]);
+            try
+            {
+                retval.setPort(Integer.parseInt(persisConfig[3]));
+            }
+            catch(NumberFormatException ex)
+            {
+                retval.setPort(5900);
+            }
+            
             return retval;
         }
         else
@@ -73,25 +66,24 @@ public class Configuration
     public void persist(DataModel model)
     {
         String[] persisConfig = new String[5];
-        persisConfig[0] = isSSH() + "";
-        persisConfig[1] = isShared() + "";
-        persisConfig[2] = isLogging() + "";
-        persisConfig[3] = getPassword();
-        persisConfig[4] = getPort() + "";
+        persisConfig[0] = isShared() + "";
+        persisConfig[1] = isLogging() + "";
+        persisConfig[2] = getPassword();
+        persisConfig[3] = getPort() + "";
         model.set("config", persisConfig);
 
     }
 
-    public boolean isSSH()
+    
+     public int getPort()
     {
-        return SSH;
+        return port;
     }
 
-    public void setSSH(boolean SSH)
+    public void setPort(int port)
     {
-        this.SSH = SSH;
+        this.port = port;
     }
-
     public boolean isShared()
     {
         return shared;

@@ -5,9 +5,10 @@
  */
 package com.ur.urcap.bachelor.vncserver.business.VNCServer;
 
-import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediatorImpl;
+import com.ur.urcap.api.domain.data.DataModel;
+import com.ur.urcap.api.ui.component.LabelComponent;
+import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediator;
 import com.ur.urcap.bachelor.vncserver.business.shell.UnsuccessfulCommandException;
-import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,25 +22,8 @@ public class VNCServer
     private LinuxMediator linMed;
     private Configuration configuration;
     private boolean active = false;
-
-    public VNCServer()
-    {
-        this.configuration = new Configuration();
-
-        linMed = new LinuxMediatorImpl();
-        try
-        {
-            //Create default VNC server
-
-            linMed.installVNC();
-
-            linMed.setVNCPassword(this.configuration.getPassword());
-        }
-        catch (UnsuccessfulCommandException ex)
-        {
-            System.out.println("Something went wrong in setup.");
-        }
-    }
+    private String fs = System.getProperty("file.separator");
+    private String dataPath = fs + "var" + fs + "x11vnc" + fs;
 
     public boolean isActive()
     {
@@ -49,26 +33,29 @@ public class VNCServer
     public VNCServer(Configuration configuration)
     {
         this.configuration = configuration;
-        linMed = new LinuxMediatorImpl();
-        try
-        {
-            //Create default VNC server
-
-            linMed.installVNC();
-
-            linMed.setVNCPassword(this.configuration.getPassword());
-        }
-        catch (UnsuccessfulCommandException ex)
-        {
-            System.out.println("Something went wrong in setup.");
-        }
+        linMed = new LinuxMediator(dataPath);
     }
 
+    public static VNCServer createServer(DataModel model)
+    {
+        VNCServer server = new VNCServer(Configuration.createConfiguration(model));
+        if(model.isSet("activeServer"))
+        {
+            server.active = model.get("activeServer", false);
+        }
+        return server;
+    }
+    public void persist(DataModel model)
+    {
+        model.set("activeServer", active);
+        configuration.persist(model);
+    }
     public void start()
     {
         try
         {
-            linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isSSH(), configuration.isLogging());
+            linMed.setVNCPassword(configuration.getPassword());
+            linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isLogging(), dataPath);
             active = true;
         }
         catch (UnsuccessfulCommandException ex)
@@ -98,6 +85,11 @@ public class VNCServer
     public Configuration getConfig()
     {
         return configuration;
+    }
+
+    public String getDataPath()
+    {
+        return dataPath;
     }
 
 }

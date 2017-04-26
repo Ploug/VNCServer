@@ -11,21 +11,24 @@ import com.ur.urcap.api.ui.component.InputTextField;
 import com.ur.urcap.api.ui.component.LabelComponent;
 import com.ur.urcap.bachelor.vncserver.business.VNCServer.Configuration;
 import com.ur.urcap.bachelor.vncserver.business.VNCServer.VNCServer;
-import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediatorImpl;
-import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
+import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediator;
+import com.ur.urcap.bachelor.vncserver.business.shell.UnsuccessfulCommandException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class VNCServerInstallationNodeContribution implements InstallationNodeContribution
 {
 
     private static final String STARTSTOP_KEY = "startStopServer";
     private static final String SHARECONNECTION = "shareConnection";
-    private static final String SSH = "SSH";
     private static final String DEFAULT_VALUE = "VNC Server foo";
     private static final String PASSWORD_FIELD = "passwordField";
     private static final String PORT_FIELD = "portText";
     private static final String LOGVNCACTIVITY = "logVNCActivity";
+    private static final String LOG_PATH = "logPath";
+    private static final String INSTALL_VNC = "installVNC";
+    private static final String INSTALL_VNC_TEXT = "installVNCText";
 
-    private static final String SSH_LABEL = "SSHLabel";
     private static final String PASSWORRD_LABEL = "passwordLabel";
 
     private Configuration configuration;
@@ -42,11 +45,11 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Input(id = LOGVNCACTIVITY)
     private InputButton logVNCActivityButton;
 
+    @Input(id = INSTALL_VNC)
+    private InputButton installVNCButton;
+
     @Input(id = STARTSTOP_KEY)
     private InputButton startStopButton;
-
-    @Input(id = SSH)
-    private InputButton sshButton;
 
     @Input(id = SHARECONNECTION)
     private InputButton shareConnectionButton;
@@ -57,11 +60,14 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     @Label(id = PASSWORRD_LABEL)
     private LabelComponent passwordLabel;
 
+    @Label(id = LOG_PATH)
+    private LabelComponent logPath;
+
+    @Label(id = INSTALL_VNC_TEXT)
+    private LabelComponent installVNCLabel;
+
     @Label(id = "Online")
     private LabelComponent onlineLabel;
-
-    @Label(id = "SSHLabel")
-    private LabelComponent SSHLabel;
 
     @Label(id = "portLabel")
     private LabelComponent portLabel;
@@ -82,24 +88,15 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     public void onStartStopClick(InputEvent event)
     {
 
-        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+        if (event.getEventType() == InputEvent.EventType.ON_PRESSED && !installVNCButton.isVisible())
         {
             if (!server.isActive())
             {
                 server.start();
-                IPAddress.getText();
                 IPAddress.setText(linMed.getIP());
                 onlineLabel.setText("ONLINE");
                 passwordLabel.setText(server.getConfig().getPassword());
                 portLabel.setText(server.getConfig().getPort() + "");
-                if (configuration.isSSH())
-                {
-                    SSHLabel.setText("SSH");
-                }
-                else
-                {
-                    SSHLabel.setText("Telnet");
-                }
                 sharedLabel.setText(server.getConfig().isShared() + "");
                 logLabel.setText(server.getConfig().isLogging() + "");
                 startStopButton.setText("Stop");
@@ -107,16 +104,13 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
             else
             {
                 server.stop();
-                IPAddress.setText("");
                 onlineLabel.setText("OFFLINE");
                 passwordLabel.setText("");
                 portLabel.setText("");
-                SSHLabel.setText("");
                 sharedLabel.setText("");
                 logLabel.setText("");
                 startStopButton.setText("Start");
             }
-            configuration.persist(model);
         }
     }
 
@@ -126,25 +120,8 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
         {
             configuration.setLogging(!configuration.isLogging());
-            logVNCActivityButton.setText("Log VNC Activity:" + configuration.isLogging());
-        }
-    }
-
-    @Input(id = SSH)
-    public void onSSHClick(InputEvent event)
-    {
-        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
-        {
-            configuration.setSSH(!configuration.isSSH());
-            if (configuration.isSSH())
-            {
-                sshButton.setText("SSH");
-            }
-            else
-            {
-                sshButton.setText("Telnet");
-            }
-
+            logVNCActivityButton.setText("Log VNC Activity: " + configuration.isLogging());
+            configuration.persist(model);
         }
     }
 
@@ -154,6 +131,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         if (event.getEventType() == InputEvent.EventType.ON_CHANGE)
         {
             configuration.setPassword(passwordField.getText());
+            configuration.persist(model);
         }
     }
 
@@ -164,14 +142,22 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         {
             try
             {
-                configuration.setPort(Integer.parseInt(portField.getText()));
-
+                int port = Integer.parseInt(portField.getText());
+                if (port > 0 && port < 65535)
+                {
+                    configuration.setPort(port);
+                }
+                else
+                {
+                    portField.setText(configuration.getPort() + "");
+                }
             }
 
             catch (NumberFormatException ex)
             {
-                return;
+                portField.setText(configuration.getPort() + "");
             }
+            configuration.persist(model);
 
         }
     }
@@ -183,6 +169,27 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
         {
             configuration.setShared(!configuration.isShared());
             shareConnectionButton.setText("Shared: " + configuration.isShared());
+            configuration.persist(model);
+        }
+    }
+
+    @Input(id = INSTALL_VNC)
+    public void onInstallVNCClick(InputEvent event)
+    {
+        if (event.getEventType() == InputEvent.EventType.ON_PRESSED)
+        {
+
+            try
+            {
+                linMed.installVNC();
+                installVNCButton.setVisible(false);
+                installVNCLabel.setVisible(false);
+            }
+            catch (UnsuccessfulCommandException ex)
+            {
+                installVNCLabel.setText("Something went wrong when installing VNC");
+            }
+
         }
     }
 
@@ -190,35 +197,57 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     public void openView()
     {
 
-        server = new VNCServer();
-        linMed = new LinuxMediatorImpl();
+        server = VNCServer.createServer(model);
+        linMed = new LinuxMediator(server.getDataPath());
+        if (linMed.VNCInstalled())
+        {
+            installVNCButton.setVisible(false);
+            installVNCLabel.setVisible(false);
+        }
+        else
+        {
+            installVNCButton.setVisible(true);
+            installVNCLabel.setVisible(true);
+            installVNCButton.setText("Install VNC");
+            installVNCLabel.setText("VNC is not installed. Installing might take a while");
+        }
         startStopButton.setText("Start");
         shareConnectionButton.setText("Share connection");
-        sshButton.setText("SSH");
 
-        configuration = Configuration.createConfiguration(model);
+        configuration = server.getConfig();
 
-        portLabel.setText("");
-        sharedLabel.setText("");
-        SSHLabel.setText("");
-        IPAddress.getText();
-        IPAddress.setText(linMed.getIP());
-        onlineLabel.setText("OFFLINE");
-        portField.setText("5900");
-        configuration.setPort(5900);
+        logPath.setText("Logs saved at: " + server.getDataPath());
+        if(server.isActive())
+        {
+            IPAddress.setText(linMed.getIP());
+            onlineLabel.setText("ONLINE");
+            passwordLabel.setText(server.getConfig().getPassword());
+            portLabel.setText(server.getConfig().getPort() + "");
+            sharedLabel.setText(server.getConfig().isShared() + "");
+            logLabel.setText(server.getConfig().isLogging() + "");
+            startStopButton.setText("Stop");
+        }
+        else
+        {
+            onlineLabel.setText("OFFLINE");
+            passwordLabel.setText("");
+            portLabel.setText("");
+            sharedLabel.setText("");
+            logLabel.setText("");
+            startStopButton.setText("Start");
+        }
+
         server.setConfig(configuration);
-        passwordField.setText(server.getConfig().getPassword());
-        passwordLabel.setText(server.getConfig().getPassword());
-
-        sharedLabel.setText("");
-        SSHLabel.setText("");
-        logVNCActivityButton.setText("Log VNC Activity");
+        passwordField.setText(configuration.getPassword());
+        portField.setText(configuration.getPort() + "");
+        shareConnectionButton.setText("Shared: " + configuration.isShared());
+        logVNCActivityButton.setText("Log VNC Activity: " + configuration.isLogging());
     }
 
     @Override
     public void closeView()
     {
-        server.stop();
+        server.persist(model);
     }
 
     @Override

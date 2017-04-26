@@ -5,39 +5,116 @@
  */
 package com.ur.urcap.bachelor.vncserver.business.shell;
 
-import com.ur.urcap.bachelor.vncserver.interfaces.LinuxMediator;
+import com.ur.urcap.api.ui.component.LabelComponent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author frede
  */
-public class LinuxMediatorImpl implements LinuxMediator
+public class LinuxMediator
 {
 
+    //TODO check if running as root already.
     private String ls = System.getProperty("line.separator");
     private String fs = System.getProperty("file.separator");
-    private String passwdPath = fs + "var" + fs + "x11vnc" + fs + "passwd";
+    private String passwdPath;
+    private String dataPath;
+    private String elevated;
+
+    public LinuxMediator(String dataPath)
+    {
+        this.dataPath = dataPath;
+        passwdPath = dataPath + "passwd";
+        ShellCommandResponse response = doCommand("whoami");
+
+        if (response.getOutput().contains("root"))
+        {
+            elevated = "";
+        }
+        else
+        {
+            elevated = "sudo ";
+        }
+    }
+
+    private void commentSources(boolean value)
+    {
+        if (value)
+        {
+            findReplaceInFile("/etc/apt/sources.list", "deb ", "#deb ");
+            findReplaceInFile("/etc/apt/sources.list", "deb-", "#deb-");
+        }
+        else
+        {
+            findReplaceInFile("/etc/apt/sources.list", "#deb", "deb");
+        }
+    }
+
+    private void findReplaceInFile(String path, String find, String replace)
+    {
+
+        try
+        {
+            File f1 = new File(path);
+            FileReader fr = new FileReader(f1);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            List<String> lines = new ArrayList<String>();
+            while ((line = br.readLine()) != null)
+            {
+                line = line.replaceAll(find, replace);
+                lines.add(line + ls);
+            }
+            fr.close();
+            br.close();
+
+            FileWriter fw = new FileWriter(f1);
+            BufferedWriter out = new BufferedWriter(fw);
+            for (String s : lines)
+            {
+                out.write(s);
+            }
+            out.flush();
+            out.close();
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+    }
+
+    public boolean VNCInstalled()
+    {
+        ShellCommandResponse response = doCommand(elevated + "dpkg -s x11vnc");
+        return response.getOutput().contains("Status: install ok installed");
+    }
 
     public void installVNC() throws UnsuccessfulCommandException
     {
-        ShellCommandResponse response = doCommand("sudo dpkg -s x11vnc");
-        if (response.getOutput().contains("Status: install ok installed"))
+        if (VNCInstalled())
         {
             return;
         }
-        doCommand("sudo apt-get -y install x11vnc");
-        response = doCommand("sudo dpkg -s x11vnc");
-        if (response.getOutput().contains("Status: install ok installed"))
+        doCommand(elevated + "apt-get -y install x11vnc");
+        if (VNCInstalled())
         {
             return;
         }
-        doCommand("sudo apt-get update");
-        doCommand("sudo apt-get -y install x11vnc");
-        if (!response.getOutput().contains("Status: install ok installed"))
+        commentSources(false);
+        doCommand(elevated + "apt-get update");
+        doCommand(elevated + "apt-get -y install x11vnc");
+        commentSources(true);
+        if (!VNCInstalled())
         {
             throw new UnsuccessfulCommandException("x11vnc was not installed for unknown reasons");
         }
@@ -48,9 +125,9 @@ public class LinuxMediatorImpl implements LinuxMediator
     {
 
         File f = new File(passwdPath);
-        ShellCommandResponse response = doCommand("sudo mkdir -p " + passwdPath.replace(fs + "passwd", ""));
-        doCommand("sudo touch " + passwdPath);
-        response = doCommand("sudo x11vnc --storepasswd " + password + " " + passwdPath);
+        doCommand(elevated + "mkdir -p " + passwdPath.replace(fs + "passwd", ""));
+        doCommand(elevated + "touch " + passwdPath);
+        ShellCommandResponse response = doCommand(elevated + "x11vnc --storepasswd " + password + " " + passwdPath);
 
         if (!response.getOutput().contains("stored passwd in file"))
         {
@@ -58,7 +135,7 @@ public class LinuxMediatorImpl implements LinuxMediator
         }
     }
 
-    public void startVNC(boolean shared, int port, boolean ssh, boolean log) throws UnsuccessfulCommandException
+    public void startVNC(boolean shared, int port, boolean log, String dataPath) throws UnsuccessfulCommandException
     {
         /*
          -forever: keeps server running after you log out
@@ -73,7 +150,7 @@ public class LinuxMediatorImpl implements LinuxMediator
          */
 
         doCommand("x11vnc -R stop");
-        String command = "sudo " + fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg -rfbauth " + passwdPath;
+        String command = elevated + "" + fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg -rfbauth " + passwdPath;
         command += shared ? " -shared" : "";
         command += " -rfbport " + port;
         if (log)
@@ -82,12 +159,12 @@ public class LinuxMediatorImpl implements LinuxMediator
             int i = 0;
             do
             {
-                f = new File(fs + "var" + fs + "x11vnc" + fs + "logFile_" + i + ".log");
+                f = new File(dataPath + "logFile_" + i + ".log");
                 i++;
             }
             while (f.exists());
 
-            doCommand("sudo touch" + f.getAbsolutePath());
+            doCommand(elevated + "touch" + f.getAbsolutePath());
 
             String logPath = f.getAbsolutePath();
             command += " -o " + logPath;
@@ -144,7 +221,7 @@ public class LinuxMediatorImpl implements LinuxMediator
         return new ShellCommandResponse(output, exitValue);
     }
      */
-    public ShellCommandResponse doCommand(String s)
+    private ShellCommandResponse doCommand(String s)
     {
         String output = "";
         int exitValue = -1;
@@ -204,10 +281,11 @@ public class LinuxMediatorImpl implements LinuxMediator
 
     public String getIP()
     {
-        ShellCommandResponse response = doCommand("ip addr show eth0");
+        ShellCommandResponse response = doCommand("ip addr show");
         String s = response.getOutput();
-        int startIndex = s.indexOf("inet");
-        return response.getOutput().substring(s.indexOf("inet") + 5, s.indexOf("/", startIndex));
+        String firstEth = s.substring(s.indexOf("eth"));
+        int startIndex = firstEth.indexOf("inet");
+        return firstEth.substring(startIndex + 5, firstEth.indexOf("/", startIndex));
     }
 
 }
