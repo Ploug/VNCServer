@@ -21,7 +21,7 @@
                 display: inline-block;
             }
             #portText{
-                width: 30%;
+                width: 10%;
                 height: 25px;
                 display: inline-block;
             }
@@ -82,7 +82,7 @@
             <h3>Configuration</h3>
             <b>Set Password: </b> <br><input id="passwordField" type="text"/>
             <label style="font-weight: bold;" id="passwordInfo">Temporary</label><br>
-            <b>Set Port:     </b><br>       <input id="portText" type="text"/><br>
+            <b>Set Port:     </b><br>       <input id="portText" type="number" step="1" min="2" max="65535" /><br>
             <input id="shareConnection" type="button"/><br>
             <input id="logVNCActivity" type="button"/>
             <label style="font-weight: bold;" id="logPath">Temporary</label>

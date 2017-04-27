@@ -9,10 +9,10 @@ import com.ur.urcap.api.ui.component.InputButton;
 import com.ur.urcap.api.ui.component.InputEvent;
 import com.ur.urcap.api.ui.component.InputTextField;
 import com.ur.urcap.api.ui.component.LabelComponent;
-import com.ur.urcap.bachelor.vncserver.business.VNCServer.Configuration;
-import com.ur.urcap.bachelor.vncserver.business.VNCServer.VNCServer;
+import com.ur.urcap.bachelor.vncserver.business.Configuration;
+import com.ur.urcap.bachelor.vncserver.business.VNCServer;
 import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediator;
-import com.ur.urcap.bachelor.vncserver.business.shell.UnsuccessfulCommandException;
+import com.ur.urcap.bachelor.vncserver.exceptions.UnsuccessfulCommandException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +28,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     private static final String LOG_PATH = "logPath";
     private static final String INSTALL_VNC = "installVNC";
     private static final String INSTALL_VNC_TEXT = "installVNCText";
+    private final String folderName = "vncGui";
 
     private static final String PASSWORRD_LABEL = "passwordLabel";
 
@@ -174,14 +175,9 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
             try
             {
                 int port = Integer.parseInt(portField.getText());
-                if (port > 0 && port < 65535)
-                {
-                    configuration.setPort(port);
-                }
-                else
-                {
-                    portField.setText(configuration.getPort() + "");
-                }
+
+                configuration.setPort(port);
+
             }
 
             catch (NumberFormatException ex)
@@ -229,7 +225,7 @@ public class VNCServerInstallationNodeContribution implements InstallationNodeCo
     {
 
         server = VNCServer.createServer(model);
-        linMed = new LinuxMediator(server.getDataPath());
+        linMed = new LinuxMediator(folderName);
         if (linMed.VNCInstalled())
         {
             installVNCButton.setVisible(false);

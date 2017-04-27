@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ur.urcap.bachelor.vncserver.business.shell;
+package com.ur.urcap.bachelor.vncserver.exceptions;
 
 /**
  *

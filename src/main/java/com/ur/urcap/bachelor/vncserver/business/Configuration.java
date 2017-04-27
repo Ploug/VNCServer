@@ -3,8 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ur.urcap.bachelor.vncserver.business.VNCServer;
 
+package com.ur.urcap.bachelor.vncserver.business;
 import com.ur.urcap.api.domain.data.DataModel;
 
 /**

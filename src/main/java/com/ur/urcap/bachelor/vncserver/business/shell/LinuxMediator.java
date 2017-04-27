@@ -5,7 +5,10 @@
  */
 package com.ur.urcap.bachelor.vncserver.business.shell;
 
+import com.ur.urcap.bachelor.vncserver.exceptions.UnsuccessfulCommandException;
 import com.ur.urcap.api.ui.component.LabelComponent;
+import com.ur.urcap.bachelor.vncserver.services.ShellComService;
+import com.ur.urcap.bachelor.vncserver.services.ShellCommandResponse;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,23 +33,34 @@ public class LinuxMediator
     private String ls = System.getProperty("line.separator");
     private String fs = System.getProperty("file.separator");
     private String passwdPath;
-    private String dataPath;
     private String elevated;
+    private ShellComService shellCom;
+    private String dataPath;
 
-    public LinuxMediator(String dataPath)
+    public LinuxMediator(String dataFolder)
     {
+        dataPath += fs + "var" + fs + dataFolder + fs;
+        shellCom = new ShellCommunicator();
         this.dataPath = dataPath;
         passwdPath = dataPath + "passwd";
-        ShellCommandResponse response = doCommand("whoami");
+        ShellCommandResponse response;
+        try
+        {
+            response = shellCom.doCommand("whoami");
+            if (response.getOutput().contains("root"))
+            {
+                elevated = "";
+            }
+            else
+            {
+                elevated = "sudo ";
+            }
+        }
+        catch (UnsuccessfulCommandException ex)
+        {
+            Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        if (response.getOutput().contains("root"))
-        {
-            elevated = "";
-        }
-        else
-        {
-            elevated = "sudo ";
-        }
     }
 
     private void commentSources(boolean value)
@@ -102,8 +116,16 @@ public class LinuxMediator
 
     public boolean VNCInstalled()
     {
-        ShellCommandResponse response = doCommand(elevated + "dpkg -s x11vnc");
-        return response.getOutput().contains("Status: install ok installed");
+        try
+        {
+            ShellCommandResponse response = shellCom.doCommand(elevated + "dpkg -s x11vnc");
+            return response.getOutput().contains("Status: install ok installed");
+        }
+        catch (UnsuccessfulCommandException ex)
+        {
+            Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
 
     public void installVNC() throws UnsuccessfulCommandException
@@ -112,14 +134,14 @@ public class LinuxMediator
         {
             return;
         }
-        doCommand(elevated + "apt-get -y install x11vnc");
+        shellCom.doCommand(elevated + "apt-get -y install x11vnc");
         if (VNCInstalled())
         {
             return;
         }
         commentSources(false);
-        doCommand(elevated + "apt-get update");
-        doCommand(elevated + "apt-get -y install x11vnc");
+        shellCom.doCommand(elevated + "apt-get update");
+        shellCom.doCommand(elevated + "apt-get -y install x11vnc");
         commentSources(true);
         if (!VNCInstalled())
         {
@@ -132,9 +154,9 @@ public class LinuxMediator
     {
 
         File f = new File(passwdPath);
-        doCommand(elevated + "mkdir -p " + passwdPath.replace(fs + "passwd", ""));
-        doCommand(elevated + "touch " + passwdPath);
-        ShellCommandResponse response = doCommand(elevated + "x11vnc --storepasswd " + password + " " + passwdPath);
+        shellCom.doCommand(elevated + "mkdir -p " + passwdPath.replace(fs + "passwd", ""));
+        shellCom.doCommand(elevated + "touch " + passwdPath);
+        ShellCommandResponse response = shellCom.doCommand(elevated + "x11vnc --storepasswd " + password + " " + passwdPath);
 
         if (!response.getOutput().contains("stored passwd in file"))
         {
@@ -156,7 +178,7 @@ public class LinuxMediator
 
          */
 
-        doCommand("x11vnc -R stop");
+        shellCom.doCommand("x11vnc -R stop");
         String command = elevated + "" + fs + "usr" + fs + "bin" + fs + "x11vnc -forever -nodpms -noxdamage -bg -rfbauth " + passwdPath;
         command += shared ? " -shared" : "";
         command += " -rfbport " + port;
@@ -171,18 +193,18 @@ public class LinuxMediator
             }
             while (f.exists());
 
-            doCommand(elevated + "touch" + f.getAbsolutePath());
+            shellCom.doCommand(elevated + "touch" + f.getAbsolutePath());
 
             String logPath = f.getAbsolutePath();
             command += " -o " + logPath;
         }
         System.out.println("COMMAND: " + command);
-        doCommand(command);
+        shellCom.doCommand(command);
     }
 
     public void stopVNC() throws UnsuccessfulCommandException
     {
-        ShellCommandResponse response = doCommand("x11vnc -R stop");
+        ShellCommandResponse response = shellCom.doCommand("x11vnc -R stop");
         System.out.println("output: " + response.getOutput());
         System.out.println("exit value: " + response.getExitValue());
         if (response.getExitValue() != 0)
@@ -191,108 +213,27 @@ public class LinuxMediator
         }
     }
 
-    /*
-    public ShellCommandResponse doCommands(String[] s)
-    {
-        String output = "";
-        int exitValue = -1;
-        Process p;
-        try
-        {
-            p = Runtime.getRuntime().exec(s[0]);
-            OutputStream opst = p.getOutputStream();
-            PrintWriter pw = new PrintWriter(opst);
-            for (int i = 1; i < s.length; i++)
-            {
-                pw.write(s[i] + "\n");
-                System.out.println(s[i] + "\n");
-            }
-            System.out.println("Hello :)");
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(p.getInputStream()));
-            System.out.println("Helldso :)" + p.getInputStream().available());
-            String line = "";
-            while ((line = br.readLine()) != null)
-            {
-                output += line + "\n";
-            }
-
-            p.waitFor();
-            exitValue = p.exitValue();
-            p.destroy();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return new ShellCommandResponse(output, exitValue);
-    }
-     */
-    private ShellCommandResponse doCommand(String s)
-    {
-        String output = "";
-        int exitValue = -1;
-        Process p;
-        try
-        {
-            System.out.println("\ncommand:" + s + "\n");
-            p = Runtime.getRuntime().exec(s);
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(p.getInputStream()));
-            BufferedReader ir = new BufferedReader(
-                    new InputStreamReader(p.getErrorStream()));
-            while ((s = ir.readLine()) != null)
-            {
-                output += s + "\n";
-            }
-            while ((s = br.readLine()) != null)
-            {
-                output += s + "\n";
-            }
-
-            p.waitFor();
-            exitValue = p.exitValue();
-            p.destroy();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return new ShellCommandResponse(output, exitValue);
-    }
-
-    public void runScript(String script) //TODO: make it possible to run .sh scripts. Currently trouble with handling proper file pathing in linux.
-    {
-        try
-        {
-            Runtime rt = Runtime.getRuntime();
-            Process proc = rt.exec(script);
-            proc.waitFor();
-            StringBuffer output = new StringBuffer();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line = "";
-            while ((line = reader.readLine()) != null)
-            {
-                output.append(line + "\n");
-            }
-        }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch (InterruptedException ex)
-        {
-            ex.printStackTrace();
-        }
-    }
-
     public String getIP()
     {
-        ShellCommandResponse response = doCommand("ip addr show");
-        String s = response.getOutput();
-        String firstEth = s.substring(s.indexOf("eth"));
-        int startIndex = firstEth.indexOf("inet");
-        return firstEth.substring(startIndex + 5, firstEth.indexOf("/", startIndex));
+        ShellCommandResponse response;
+        try
+        {
+            response = shellCom.doCommand("ip addr show");
+            String s = response.getOutput();
+            String firstEth = s.substring(s.indexOf("eth"));
+            int startIndex = firstEth.indexOf("inet");
+            return firstEth.substring(startIndex + 5, firstEth.indexOf("/", startIndex));
+        }
+        catch (UnsuccessfulCommandException ex)
+        {
+            Logger.getLogger(LinuxMediator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
+    }
+
+    public String getDataPath()
+    {
+        return dataPath;
     }
 
 }

@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ur.urcap.bachelor.vncserver.business.shell;
+package com.ur.urcap.bachelor.vncserver.services;
+
+import com.ur.urcap.bachelor.vncserver.business.shell.*;
 
 /**
  *
@@ -11,8 +13,8 @@ package com.ur.urcap.bachelor.vncserver.business.shell;
  */
 public class ShellCommandResponse
 {
-    private String output;
-    private int exitValue;
+    private final String output;
+    private final int exitValue;
     
     public ShellCommandResponse(String output, int exitValue)
     {

@@ -1,16 +1,15 @@
+package com.ur.urcap.bachelor.vncserver.business;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ur.urcap.bachelor.vncserver.business.VNCServer;
+
 
 import com.ur.urcap.api.domain.data.DataModel;
-import com.ur.urcap.api.ui.component.LabelComponent;
 import com.ur.urcap.bachelor.vncserver.business.shell.LinuxMediator;
-import com.ur.urcap.bachelor.vncserver.business.shell.UnsuccessfulCommandException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.ur.urcap.bachelor.vncserver.exceptions.UnsuccessfulCommandException;
 
 /**
  *
@@ -22,8 +21,7 @@ public class VNCServer
     private LinuxMediator linMed;
     private Configuration configuration;
     private boolean active = false;
-    private String fs = System.getProperty("file.separator");
-    private String dataPath = fs + "var" + fs + "x11vnc" + fs;
+    private final String folderName = "x11vnc";
 
     public boolean isActive()
     {
@@ -33,7 +31,7 @@ public class VNCServer
     public VNCServer(Configuration configuration)
     {
         this.configuration = configuration;
-        linMed = new LinuxMediator(dataPath);
+        linMed = new LinuxMediator(folderName);
     }
 
     public static VNCServer createServer(DataModel model)
@@ -55,7 +53,7 @@ public class VNCServer
     public void start() throws UnsuccessfulCommandException
     {
         linMed.setVNCPassword(configuration.getPassword());
-        linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isLogging(), dataPath);
+        linMed.startVNC(configuration.isShared(), configuration.getPort(), configuration.isLogging(), folderName);
         active = true;
 
     }
@@ -80,7 +78,8 @@ public class VNCServer
 
     public String getDataPath()
     {
-        return dataPath;
+        
+        return linMed.getDataPath();
     }
 
 }
