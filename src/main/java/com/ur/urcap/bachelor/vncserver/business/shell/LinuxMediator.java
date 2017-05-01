@@ -6,7 +6,6 @@
 package com.ur.urcap.bachelor.vncserver.business.shell;
 
 import com.ur.urcap.bachelor.vncserver.exceptions.UnsuccessfulCommandException;
-import com.ur.urcap.api.ui.component.LabelComponent;
 import com.ur.urcap.bachelor.vncserver.services.ShellComService;
 import com.ur.urcap.bachelor.vncserver.services.ShellCommandResponse;
 import java.io.BufferedReader;
@@ -16,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,15 +31,18 @@ public class LinuxMediator
     private String ls = System.getProperty("line.separator");
     private String fs = System.getProperty("file.separator");
     private String passwdPath;
+    private static final String[] NEEDED_PROGRAMS =
+    {
+        "x11vnc"
+    };
     private String elevated;
     private ShellComService shellCom;
     private String dataPath;
 
     public LinuxMediator(String dataFolder)
     {
-        dataPath += fs + "var" + fs + dataFolder + fs;
+        dataPath = fs + "var" + fs + dataFolder + fs;
         shellCom = new ShellCommunicator();
-        this.dataPath = dataPath;
         passwdPath = dataPath + "passwd";
         ShellCommandResponse response;
         try
@@ -114,11 +115,11 @@ public class LinuxMediator
 
     }
 
-    public boolean VNCInstalled()
+    public boolean isInstalled(String program)
     {
         try
         {
-            ShellCommandResponse response = shellCom.doCommand(elevated + "dpkg -s x11vnc");
+            ShellCommandResponse response = shellCom.doCommand(elevated + "dpkg -s " + program);
             return response.getOutput().contains("Status: install ok installed");
         }
         catch (UnsuccessfulCommandException ex)
@@ -128,25 +129,26 @@ public class LinuxMediator
         return false;
     }
 
-    public void installVNC() throws UnsuccessfulCommandException
+    public boolean install(String program) throws UnsuccessfulCommandException
     {
-        if (VNCInstalled())
+        if (isInstalled(program))
         {
-            return;
+            return false;
         }
-        shellCom.doCommand(elevated + "apt-get -y install x11vnc");
-        if (VNCInstalled())
+        shellCom.doCommand(elevated + "apt-get -y install " + program);
+        if (isInstalled(program))
         {
-            return;
+            return true;
         }
         commentSources(false);
         shellCom.doCommand(elevated + "apt-get update");
-        shellCom.doCommand(elevated + "apt-get -y install x11vnc");
+        shellCom.doCommand(elevated + "apt-get -y install " + program);
         commentSources(true);
-        if (!VNCInstalled())
+        if (!isInstalled(program))
         {
-            throw new UnsuccessfulCommandException("x11vnc was not installed for unknown reasons");
+            throw new UnsuccessfulCommandException(program + " was not installed for unknown reasons");
         }
+        return true;
 
     }
 
@@ -211,6 +213,28 @@ public class LinuxMediator
         {
             throw new UnsuccessfulCommandException("Something went wrong when stoppping the server");
         }
+    }
+
+    public boolean installMissingPrograms() throws UnsuccessfulCommandException
+    {
+        boolean installedAnything = false;
+        for (String neededProgram : NEEDED_PROGRAMS)
+        {
+            installedAnything = install(neededProgram) ? true : installedAnything;
+        }
+        return installedAnything;
+    }
+
+    public boolean neededProgramsInstalled()
+    {
+        for (String neededProgram : NEEDED_PROGRAMS)
+        {
+            if (!isInstalled(neededProgram))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getIP()
